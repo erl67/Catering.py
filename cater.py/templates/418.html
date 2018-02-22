@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Error 418{% endblock %}
+
+{% block body %}
+<h1>418</h1>
+
+{% if errno %}
+  <h3>Hello {{ errno }}!</h3>
+{% else %}
+  <h4>OK</h4>
+{% endif %}
+
+
+<script type='text/javascript'>
+window.onload = function(){ 
+	//document.getElementById('page').style.backgroundColor = "";
+	//document.getElementById('page').removeAttribute('style');
+}
+</script>
+{% endblock %}
