@@ -5,11 +5,25 @@
 {% block body %}
 <h1>404</h1>
 <h3>Page Not Found</h3>
-<h6>{{ errno }}</h6>
+<h6 id="msg">{{ errno }}</h6>
 
 <script type='text/javascript'>
+
 window.onload = function(){ 
 	document.getElementById('page').removeAttribute('style');
+	document.getElementById('msg').removeAttribute('style');
+
+	//document.getElementsByTagName('body')[0].removeAttribute('style');
+	//document.getElementsByTagName('html')[0].removeAttribute('style');
+	
+	for(i=0; i < document.styleSheets.length ; i++) {
+		//var state = document.styleSheets.item(i).disabled==true ? false : true;
+		//void(document.styleSheets.item(i).disabled=state);
+	}
+	//document.styleSheets.item(0).disabled=true;
+
+	//document.getElementById('page').style.backgroundColor = "#fffffff";	//still runs after other JS
 }
+
 </script>
 {% endblock %}
