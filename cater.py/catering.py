@@ -8,11 +8,30 @@ Created on Mon Feb 19 16:31:53 2018
 from flask import Flask, flash, render_template, abort, request, Response
 from flask_sqlalchemy import SQLAlchemy
 
-from webpage import header, footer, setTitle
+from base import header, footer, setTitle
+from model import *
+import os
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-db = SQLAlchemy(app)
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///catering.db'
+
+app.config.update(dict(
+    DEBUG=True,
+    SECRET_KEY='development key',
+    USERNAME='admin',
+    PASSWORD='default',
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(app.root_path, 'catering.db')
+))
+
+db.init_app(app)
+
+@app.cli.command('initdb')
+def initdb_command():
+    """Creates the database tables."""
+    db.drop_all()
+    db.create_all()
+    print('Initialized the database.')
+
 
 @app.route("/hello")
 def hello():
