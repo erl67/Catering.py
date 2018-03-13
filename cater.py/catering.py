@@ -40,8 +40,6 @@ app = create_app()
 #     SQLALCHEMY_TRACK_MODIFICATIONS = False,
 #     SECRET_KEY='erl67',
 #     TEMPLATES_AUTO_RELOAD = True,
-#     USERNAME='admin',
-    PASSWORD='default',
 #     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(app.root_path, 'catering.db')
 # ))
 
