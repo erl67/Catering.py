@@ -18,7 +18,6 @@ class User(db.Model):
         self.staff = False if staff == None else True
 
     def __repr__(self):
-#         return self.username
         return "<User {}>".format(repr(self.username))
     
 class Event(db.Model):
@@ -27,7 +26,6 @@ class Event(db.Model):
     email = db.Column(db.String(120), unique=False, nullable=True)
     date = db.Column(db.DateTime, nullable=False)
     created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
-#     created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow(), server_default=datetime.utcnow())
     
     def __init__(self, eventname, email, date, created):
         self.eventname = eventname

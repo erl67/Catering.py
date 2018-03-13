@@ -26,8 +26,9 @@ Set REBUILD_DB = True at beginning of program.
 
 Initialize Database Manually: 
 
+
 goto project directory >>> cd C:\Users\E\git\201801-so-you-think-you-can-cater-erl67\Catering
 
 set FLASK_APP=catering.py
 
-flask initdb (drop, create, fill)
+flask initdb {drop, create, populate}
