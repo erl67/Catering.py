@@ -4,30 +4,35 @@ Created on Mon Feb 19 16:31:53 2018
 
 @author: E
 """
+# import os
 
-from flask import Flask, flash, render_template, abort, request, Response
+from flask import Flask, flash, render_template, abort, request, url_for, Response
 from flask_sqlalchemy import SQLAlchemy
+from models import db, User, populateDB
+from flask_debugtoolbar import DebugToolbarExtension
 
-from base import header, footer, setTitle
-from model import *
-import os
+# from base import header, footer, setTitle
 
 app = Flask(__name__)
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///catering.db'
 
 app.config.update(dict(
+    #FLASK_APP='catering.py',
     DEBUG=True,
-    SECRET_KEY='development key',
+    SQLALCHEMY_TRACK_MODIFICATIONS = False,
+    SECRET_KEY='erl67',
+    TEMPLATES_AUTO_RELOAD = True,
     USERNAME='admin',
     PASSWORD='default',
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(app.root_path, 'catering.db')
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///catering.db'
+    #SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(app.root_path, 'catering.db')
 ))
 
 db.init_app(app)
 
+# db = SQLAlchemy(app)    
+
 @app.cli.command('initdb')
 def initdb_command():
-    """Creates the database tables."""
     db.drop_all()
     db.create_all()
     print('Initialized the database.')
@@ -37,23 +42,27 @@ def initdb_command():
 def hello():
     return "Hello World!"
 
+@app.route("/test")
+@app.route("/test/")
+def tester():
+    msg = 'test'
+    return Response(render_template('test.html', testMessage=msg), status=203, mimetype='text/html')
+
+@app.route("/db")
+@app.route("/db/")
+def testerDB():
+    msg = str(User.query.all())
+#     msg = User.query.limit(1).all()
+    return Response(render_template('test.html', testMessage=msg), status=203, mimetype='text/html')
+
 @app.route('/helloT/')
 @app.route('/helloT/<name>')
 def helloT(name=None):
     return render_template('hello.html', name=name)
 
 @app.route('/')
-@app.route('/base/')
 def index():
     return Response(render_template('base.html'), status=203, mimetype='text/html')
-
-@app.route('/test/')
-def test():
-    return header() + setTitle('Test') + '<h4 onclick=\"reColor(\'page\', \'page\');\">Test Page</h4>' + footer()
-
-@app.route('/about')
-def about():
-    return header() + setTitle('About Page') + '<h4 onclick=\"reColor(\'page\', \'page\');\">About Page</h4>' + footer()
 
 @app.errorhandler(403)
 @app.errorhandler(404)
@@ -74,6 +83,14 @@ def err418(error=None):
 
 if __name__ == "__main__":
     app.jinja_env.auto_reload = True
-    app.config['TEMPLATES_AUTO_RELOAD'] = True
-    app.run(debug=True, host='0.0.0.0')
+    toolbar = DebugToolbarExtension(app)
     app.run()
+    
+#     initdb_command()
+#     db.drop_all()
+#     db.create_all()
+    print('Initialized the database.')
+    populateDB()
+    
+    
+    #app.add_url_rule('/favicon.ico', redirect_to=url_for('static', filename='favicon.ico'))
