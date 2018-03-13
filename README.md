@@ -11,3 +11,7 @@ Pitt ID: ERL67@pitt.edu
 ## Running the App
 
 1. Instructions to run your application.
+
+goto project directory
+set FLASK_APP=catering.py
+flask initdb (drop, create, fill)
