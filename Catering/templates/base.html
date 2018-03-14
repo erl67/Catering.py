@@ -18,6 +18,13 @@
 <body id="page">
 {% block body %}
 {% endblock %}
+<footer>
+  {% if g.user %}
+    <a href="{{ url_for('unlogger') }}">sign out [{{ g.user.username }}]</a>
+  {% else %}
+    <a href="{{ url_for('logger') }}">sign in</a>
+  {% endif %}
+</footer>
 <script type='text/javascript'>
 	colorize(['page']);
 	colorizeText(['page'], false);

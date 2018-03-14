@@ -7,7 +7,9 @@ html, body {
 	display: flex; 
 	flex-direction: column;
 	justify-content: space-evenly;
-    font-family: papyrus;
+/*     font-family: papyrus; */
+    font-weight: bold;
+    font-si: larger;
 }
 div {
 	padding: 1em;
@@ -22,5 +24,18 @@ a:hover {
 	color: inherit;
 	background: #ddd;
 	text-decoration: none;
-	border-radius: 90%;
+}
+
+a.event-list {
+	margin-right: 3em;
+}
+
+footer {
+    position:absolute;
+    bottom:0;
+    left:0;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
+	font-size: smaller;
 }

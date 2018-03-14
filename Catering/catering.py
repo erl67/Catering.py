@@ -4,8 +4,9 @@ import os
 from tendo import singleton
 inst = singleton.SingleInstance() 
 
-from flask import Flask, send_from_directory, flash, render_template, abort, request, url_for, Response
+from flask import Flask, g, send_from_directory, flash, render_template, abort, request, redirect, url_for, session, Response
 from flask_debugtoolbar import DebugToolbarExtension
+
 from models import db, User, Event, populateDB
 from utils import eprint, getUsers, getEvents
 
@@ -43,8 +44,61 @@ def create_app():
     return app
 
 app = create_app()
+users = {"alice":"qwert", "bob":"asdfg", "charlie":"zxcvb"}
 
+@app.route("/login/", methods=["GET", "POST"])
+def logger():
+    if "username" in session:
+        flash("Already logged in!")
+        return redirect(url_for("profile", username=session["username"]))
+    elif request.method == "POST":
+        POST_USER = str(request.form['user'])
+        POST_PASS = str(request.form['pass'])
+        if User.query.filter(User.username==POST_USER, User.password==POST_PASS):
+            session["username"] = POST_USER
+            session["uid"] = User.query.filter(User.username==POST_USER).first().id
+            flash("Successfully logged in!")
+            return redirect(url_for("profile", uid=session["uid"]))
+        else:
+            flash("Error logging you in!")
+    return Response(render_template("accounts/loginPage.html"), status=200, mimetype='text/html')
 
+@app.route("/profile/")
+def profiles():
+    return render_template("accounts/profiles.html", users=User.query.order_by(User.id.asc()).all())
+
+@app.route("/profile/<uid>")
+def profile(uid=None):
+    if not uid:
+        return redirect(url_for("profiles"))
+    elif User.query.filter(User.id==uid) > 0:
+        if g.user:
+            if g.user.id == uid:
+                return render_template("accounts/curProfile.html")
+        else:
+            return render_template("accounts/otherProfile.html", name=User.query.filter(User.id==uid).first().username)
+    else:
+        abort(404)
+
+@app.route("/logout/")
+def unlogger():
+    if "username" in session:
+        session.clear()
+        flash("Successfully logged out!")
+        return redirect(url_for("profiles"))
+    else:
+        flash("Not currently logged in!")
+        return redirect(url_for("logger"))
+
+@app.route("/events/")
+def events():
+    return render_template("events/events.html", items=Event.query.order_by(Event.id.asc()).all())
+
+@app.before_request
+def before_request():
+    g.user = None
+    if 'uid' in session:
+        g.user = User.query.filter_by(id=session['uid']).first()
 
 @app.cli.command('initdb')
 def initdb_command():
