@@ -16,18 +16,31 @@
 {% endblock %}
 </head>
 <body id="page">
+
 {% block body %}
 {% endblock %}
-<footer>
+
+<header>
   {% if g.user %}
     <a href="{{ url_for('unlogger') }}">sign out [{{ g.user.username }}]</a>
   {% else %}
     <a href="{{ url_for('logger') }}">sign in</a>
+    <a href="{{ url_for('signer') }}">register</a>
   {% endif %}
-</footer>
+  {% with messages = get_flashed_messages() %}
+	{% if messages %}
+		<ul class="flashes">
+			{% for m in messages %}
+				<li>{{ m }}</li>
+			{% endfor %}
+		</ul>
+	{% endif %}
+	{% endwith %}
+</header>
+
 <script type='text/javascript'>
 	colorize(['page']);
-	colorizeText(['page'], false);
+	colorizeText(['page'], true);
 	footerBar();
 </script>
 </body>

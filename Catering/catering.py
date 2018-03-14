@@ -10,13 +10,12 @@ from flask_debugtoolbar import DebugToolbarExtension
 from models import db, User, Event, populateDB
 from utils import eprint, getUsers, getEvents
 
-
 def create_app():
     app = Flask(__name__)
     DB_NAME = os.path.join(app.root_path, 'catering.db')
     
     app.config.update(dict(
-        DEBUG=True,
+        DEBUG=False,
         SQLALCHEMY_TRACK_MODIFICATIONS = False,
         SECRET_KEY='erl67',
         TEMPLATES_AUTO_RELOAD = True,
@@ -44,13 +43,29 @@ def create_app():
     return app
 
 app = create_app()
-users = {"alice":"qwert", "bob":"asdfg", "charlie":"zxcvb"}
+
+@app.route("/register/", methods=["GET", "POST"])
+def signer():
+    if g.user:
+        flash("Already logged in!")
+        return redirect(url_for("profile", uid=g.user.id))
+    elif request.method == "POST":
+        POST_USER = str(request.form['user'])
+        POST_PASS = str(request.form['pass'])
+        if User.query.filter(User.username==POST_USER, User.password==POST_PASS):
+            session["username"] = POST_USER
+            session["uid"] = User.query.filter(User.username==POST_USER).first().id
+            flash("Successfully logged in!")
+            return redirect(url_for("profile", uid=session["uid"]))
+        else:
+            flash("Error logging you in!")
+    return Response(render_template("accounts/loginPage.html"), status=200, mimetype='text/html')
 
 @app.route("/login/", methods=["GET", "POST"])
 def logger():
     if "username" in session:
         flash("Already logged in!")
-        return redirect(url_for("profile", username=session["username"]))
+        return redirect(url_for("profile", uid=session["uid"]))
     elif request.method == "POST":
         POST_USER = str(request.form['user'])
         POST_PASS = str(request.form['pass'])
@@ -71,13 +86,15 @@ def profiles():
 def profile(uid=None):
     if not uid:
         return redirect(url_for("profiles"))
-    elif User.query.filter(User.id==uid) > 0:
-        if g.user:
-            if g.user.id == uid:
-                return render_template("accounts/curProfile.html")
-        else:
+    elif g.user:
+        if g.user.id == uid:
+            return render_template("accounts/curProfile.html")
+        elif User.query.filter(User.id==uid).first() != None:
             return render_template("accounts/otherProfile.html", name=User.query.filter(User.id==uid).first().username)
+        else:
+            abort(404)
     else:
+        return Response(render_template("accounts/loginPage.html"), status=200, mimetype='text/html')
         abort(404)
 
 @app.route("/logout/")
@@ -85,7 +102,7 @@ def unlogger():
     if "username" in session:
         session.clear()
         flash("Successfully logged out!")
-        return redirect(url_for("profiles"))
+        return redirect(url_for("events"))
     else:
         flash("Not currently logged in!")
         return redirect(url_for("logger"))
@@ -121,7 +138,6 @@ def testDB():
     msg += getUsers()
     msg += "\n\n"
     msg += getEvents()
-
     return Response(render_template('test.html', testMessage=msg), status=203, mimetype='text/html')
 
 @app.route('/')

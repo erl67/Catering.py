@@ -29,10 +29,17 @@ a:hover {
 a.event-list {
 	margin-right: 3em;
 }
+.flashes {
+	margin-top: 50px;
+	margin-left 50px;
+	color: rbga(255,0,0,.9);
+	font-variant: small-caps;
+	box-shadow:0px 0px 50px 30px #b06259 ;
+}
 
-footer {
+header {
     position:absolute;
-    bottom:0;
+    top:0;
     left:0;
 	display: flex;
 	flex-direction: column;
