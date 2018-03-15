@@ -16,7 +16,7 @@ def create_app():
     
     app.config.update(dict(
         DEBUG=True,
-        DEBUG_TB_INTERCEPT_REDIRECTS = True,
+#         DEBUG_TB_INTERCEPT_REDIRECTS = True,
         SQLALCHEMY_TRACK_MODIFICATIONS = False,
         SECRET_KEY='erl67',
         TEMPLATES_AUTO_RELOAD = True,
@@ -60,14 +60,13 @@ def before_request():
         if g.user.staff == True:
             g.events = Event.query.order_by(Event.id.asc()).all()
         else:
-            g.events = Event.query.filter(User.username==POST_USER)
-            order_by(Event.id.asc()).all()
+            g.events = Event.query.filter(Event.client==g.user.id).order_by(Event.date.asc()).all()
     eprint("g.user: " + str(g.user))
     eprint("g.events: " + str(g.events))
     
 @app.before_first_request
 def before_first_request():
-    eprint("first")
+    eprint("🥇")
 
 @app.route("/register/", methods=["GET", "POST"])
 def signer():
@@ -154,19 +153,18 @@ def staff(uid=None):
         
 @app.route("/customer/")
 def customers():
-    items=Event.query.order_by(Event.id.asc()).all()
-    eprint (str(items))
+    if not g.user:
+        flash("must be logged in")
+        return(url_for("index"))
     return Response(render_template("types/customer.html", user=g.user, items=g.events), status=200, mimetype='text/html')
-#     return render_template("accounts/profiles.html", users=User.query.order_by(User.id.asc()).all())
 
 
 @app.route("/customer/<uid>")
 def customer(uid=None):
-    eprint("customer" + uid + " " + str(g.user.staff))
+    eprint("customer: " + uid + " " + str(g.user.staff))
 
     if not uid or not g.user:
-        
-        return redirect(url_for("index"))
+        return redirect(url_for("customers"))
     elif g.user.staff != True and g.user.id == uid:
         eprint("render")
         return Response(render_template("types/customer.html", user=g.user), status=200, mimetype='text/html')

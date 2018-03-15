@@ -22,7 +22,12 @@
 
 <header>
   {% if g.user %}
-    <a href="{{ url_for('unlogger') }}">sign out [{{ g.user.username }}]</a>
+  	logged in as: {{ g.user.username }}
+    <a href="{{ url_for('profile', uid=g.user.id) }}">profile</a>
+    <a href="{{ url_for('customer', uid=g.user.id) }}">customer page</a>
+    
+    <br/>
+    <a href="{{ url_for('unlogger') }}">sign out</a>
   {% else %}
     <a href="{{ url_for('logger') }}">sign in</a>
     <a href="{{ url_for('signer') }}">register</a> 
