@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Customer {{user}} - {{ super() }}{% endblock %}
+{% block title %}Customer {{user.username}} - {{ super() }}{% endblock %}
 
 {% block body %}
 
@@ -9,8 +9,9 @@
 	
 	
 	{{ items }}
+	{{ items.length }}
 	
-	{% if items.length == 0 %}
+	{% if items == [] %}
 		<h4>No Pending Events</h4>
 	{% else %}
 		<h3>Pending Events </h3>

@@ -26,20 +26,20 @@ class Event(db.Model):
     email = db.Column(db.String(120), unique=False, nullable=True)
     date = db.Column(db.DateTime, nullable=False)
     created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
-    owner = db.Column(db.Integer, nullable=True)
+    client = db.Column(db.Integer, nullable=True)
     staff1 = db.Column(db.Integer, nullable=True)
     staff2 = db.Column(db.Integer, nullable=True)
     staff3 = db.Column(db.Integer, nullable=True)
     
-    def __init__(self, eventname, email, date, created, owner, staff1, staff2, staff3):
+    def __init__(self, eventname, email, date, created, client, staff1=None, staff2=None, staff3=None):
         self.eventname = eventname
         self.email = email
         self.date = date
         self.created = datetime.utcnow() if created == None else created 
-        owner = owner
-        staff1 = staff1
-        staff2 = staff2
-        staff3 = staff3
+        client = client
+        staff1 = None
+        staff2 = None
+        staff3 = None
 
     def __repr__(self):
         return "<Event {}>".format(repr(self.eventname))
@@ -52,8 +52,9 @@ def populateDB():
     db.session.add(User(username="admin", password="admin", email="admin@example.com", staff=None))
     db.session.add(User(username="guest2", password="guest", email="guest@example.com", staff=None))
     db.session.add(User(username="guest3", password="guest", email="guest@example.com", staff=None))
-    #db.session.add(Event(eventname="Grand Opening", email="test@email", date=datetime(2018, 3, 16, 23, 59), created=None))
-   # db.session.add(Event(eventname="Grand Closing", email="test2@email", date=datetime.utcnow()+timedelta(days=420), created=datetime.utcnow()-timedelta(days=420)))
+    db.session.add(Event(eventname="Grand Opening", email="test@email", client=1, date=datetime(2018, 3, 16, 23, 59), created=None))
+    db.session.add(Event(eventname="Grand Closing", email="test2@email", client=1, date=datetime.utcnow()+timedelta(days=420), created=datetime.utcnow()-timedelta(days=420)))
+    db.session.add(Event(eventname="Test Party", email="test2@email", client=4, date=datetime.utcnow()+timedelta(days=420), created=datetime.utcnow()-timedelta(days=420)))
     db.session.commit()
     print('DB Populated...') 
     return True

@@ -1,8 +1,8 @@
 REBUILD_DB = True
 
 import os
-from tendo import singleton
-inst = singleton.SingleInstance() 
+# from tendo import singleton    #not helpful for debugging
+# inst = singleton.SingleInstance() 
 
 from flask import Flask, g, send_from_directory, flash, render_template, abort, request, redirect, url_for, session, Response
 from flask_debugtoolbar import DebugToolbarExtension
@@ -57,8 +57,17 @@ def before_request():
     g.user = None
     if 'uid' in session:
         g.user = User.query.filter_by(id=session['uid']).first()
+        if g.user.staff == True:
+            g.events = Event.query.order_by(Event.id.asc()).all()
+        else:
+            g.events = Event.query.filter(User.username==POST_USER)
+            order_by(Event.id.asc()).all()
     eprint("g.user: " + str(g.user))
-    eprint("event.count: " + str(Event.query.count()))
+    eprint("g.events: " + str(g.events))
+    
+@app.before_first_request
+def before_first_request():
+    eprint("first")
 
 @app.route("/register/", methods=["GET", "POST"])
 def signer():
@@ -145,8 +154,9 @@ def staff(uid=None):
         
 @app.route("/customer/")
 def customers():
-    eprint (str(Event.query.order_by(Event.id.asc()).all()))
-    return Response(render_template("types/customer.html", user=g.user, items=Event.query.order_by(Event.id.asc()).all()), status=200, mimetype='text/html')
+    items=Event.query.order_by(Event.id.asc()).all()
+    eprint (str(items))
+    return Response(render_template("types/customer.html", user=g.user, items=g.events), status=200, mimetype='text/html')
 #     return render_template("accounts/profiles.html", users=User.query.order_by(User.id.asc()).all())
 
 
@@ -225,5 +235,5 @@ def favicon():
 
 if __name__ == "__main__":
     print('Starting......')
-    app.run(use_reloader=False)
-#     app.run()
+    app.run()
+#     app.run(use_reloader=False)
