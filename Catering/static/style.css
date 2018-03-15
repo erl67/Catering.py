@@ -25,10 +25,25 @@ a:hover {
 	background: #ddd;
 	text-decoration: none;
 }
-
 a.event-list {
 	margin-right: 3em;
 }
+.event-full {
+	
+}
+.event-empty {
+	
+}
+.user-owner {
+	
+}
+.user-staff {
+	
+}
+.user-customer {
+	
+}
+
 .flashes {
 	margin-top: 50px;
 	margin-left 50px;

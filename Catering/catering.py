@@ -226,3 +226,4 @@ def favicon():
 if __name__ == "__main__":
     print('Starting......')
     app.run(use_reloader=False)
+#     app.run()
