@@ -16,7 +16,7 @@ def create_app():
     
     app.config.update(dict(
         DEBUG=True,
-        DEBUG_TB_INTERCEPT_REDIRECTS = False,
+        DEBUG_TB_INTERCEPT_REDIRECTS = True,
         SQLALCHEMY_TRACK_MODIFICATIONS = False,
         SECRET_KEY='erl67',
         TEMPLATES_AUTO_RELOAD = True,
@@ -115,7 +115,7 @@ def profile(uid=None):
         return redirect(url_for("profiles"))
     elif g.user:
         if g.user.id == uid:
-            return render_template("accounts/curProfile.html")
+            return render_template("accounts/curProfile.html", name=g.user)
         elif User.query.filter(User.id==uid).first() != None:
             return render_template("accounts/otherProfile.html", name=User.query.filter(User.id==uid).first().username)
         else:
@@ -142,12 +142,20 @@ def staff(uid=None):
         return render_template("types/staff.html", user=User.query.filter(User.id==uid).first())
     else:
         abort(404)
+        
+@app.route("/customer/")
+def customers():
+    eprint (str(Event.query.order_by(Event.id.asc()).all()))
+    return Response(render_template("types/customer.html", user=g.user, items=Event.query.order_by(Event.id.asc()).all()), status=200, mimetype='text/html')
+#     return render_template("accounts/profiles.html", users=User.query.order_by(User.id.asc()).all())
+
 
 @app.route("/customer/<uid>")
 def customer(uid=None):
-    eprint("customer" + uid)
+    eprint("customer" + uid + " " + str(g.user.staff))
 
     if not uid or not g.user:
+        
         return redirect(url_for("index"))
     elif g.user.staff != True and g.user.id == uid:
         eprint("render")
@@ -212,7 +220,7 @@ def err418(error=None):
 
 @app.route('/favicon.ico') 
 def favicon():
-    eprint('loading icon')
+    #eprint('loading icon')
     return send_from_directory(os.path.join(app.root_path, 'static'), 'faviconF.ico', mimetype='image/vnd.microsoft.icon')
 
 if __name__ == "__main__":

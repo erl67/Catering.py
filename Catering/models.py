@@ -26,12 +26,20 @@ class Event(db.Model):
     email = db.Column(db.String(120), unique=False, nullable=True)
     date = db.Column(db.DateTime, nullable=False)
     created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
+    owner = db.Column(db.Integer, nullable=True)
+    staff1 = db.Column(db.Integer, nullable=True)
+    staff2 = db.Column(db.Integer, nullable=True)
+    staff3 = db.Column(db.Integer, nullable=True)
     
-    def __init__(self, eventname, email, date, created):
+    def __init__(self, eventname, email, date, created, owner, staff1, staff2, staff3):
         self.eventname = eventname
         self.email = email
         self.date = date
         self.created = datetime.utcnow() if created == None else created 
+        owner = owner
+        staff1 = staff1
+        staff2 = staff2
+        staff3 = staff3
 
     def __repr__(self):
         return "<Event {}>".format(repr(self.eventname))

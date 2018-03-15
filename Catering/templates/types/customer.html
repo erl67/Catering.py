@@ -1,15 +1,20 @@
 {% extends "base.html" %}
 
-{% block title %}Customer {{user.username}} - {{ super() }}{% endblock %}
+{% block title %}Customer {{user}} - {{ super() }}{% endblock %}
 
 {% block body %}
+
+	
 	<a href="{{ url_for('newEvent') }}">Request new event</a>
 	
-	<h3>Pending Events </h3>
+	
+	{{ items }}
 	
 	{% if items.length == 0 %}
-		<h4>None</h4>
+		<h4>No Pending Events</h4>
 	{% else %}
+		<h3>Pending Events </h3>
+	
 		<ul>
 		{% for i in items %}
 			<li><a class="event-list" href="/event/{{ i['id'] }}">{{ i['eventname'] }}</a>{{ i['date'] }}</li>
