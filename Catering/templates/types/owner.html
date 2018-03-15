@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Owner Page! - {{ super() }}{% endblock %}
+
+{% block body %}
+	<a href="{{ url_for('newStaff') }}">Create new staff account</a>
+	<ul>
+		{% for i in items %}
+			<li><a class="event-list" href="/event/{{ i['id'] }}">{{ i['eventname'] }}</a>{{ i['date'] }}</li>
+		{% endfor %}
+	</ul>
+{% endblock %}

@@ -18,7 +18,7 @@ class User(db.Model):
         self.staff = False if staff == None else True
 
     def __repr__(self):
-        return "<User {}>".format(repr(self.username))
+        return "<User {} {} {}>".format(repr(self.id), repr(self.username), repr(self.staff))
     
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -38,14 +38,14 @@ class Event(db.Model):
     
 
 def populateDB():
-    db.session.add(User(username="owner", password="pass", email="owner@catering.py", staff=None))
+    db.session.add(User(username="owner", password="pass", email="owner@catering.py", staff=True))
     db.session.add(User(username="customer", password="pass", email="customer@catering.py", staff=None))
     db.session.add(User(username="staff", password="pass", email="staff@catering.py", staff=True))
     db.session.add(User(username="admin", password="admin", email="admin@example.com", staff=None))
     db.session.add(User(username="guest2", password="guest", email="guest@example.com", staff=None))
     db.session.add(User(username="guest3", password="guest", email="guest@example.com", staff=None))
-    db.session.add(Event(eventname="Grand Opening", email="test@email", date=datetime(2018, 3, 16, 23, 59), created=None))
-    db.session.add(Event(eventname="Grand Closing", email="test2@email", date=datetime.utcnow()+timedelta(days=420), created=datetime.utcnow()-timedelta(days=420)))
+    #db.session.add(Event(eventname="Grand Opening", email="test@email", date=datetime(2018, 3, 16, 23, 59), created=None))
+   # db.session.add(Event(eventname="Grand Closing", email="test2@email", date=datetime.utcnow()+timedelta(days=420), created=datetime.utcnow()-timedelta(days=420)))
     db.session.commit()
     print('DB Populated...') 
     return True

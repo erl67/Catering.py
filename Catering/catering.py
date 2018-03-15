@@ -15,7 +15,8 @@ def create_app():
     DB_NAME = os.path.join(app.root_path, 'catering.db')
     
     app.config.update(dict(
-        DEBUG=False,
+        DEBUG=True,
+        DEBUG_TB_INTERCEPT_REDIRECTS = False,
         SQLALCHEMY_TRACK_MODIFICATIONS = False,
         SECRET_KEY='erl67',
         TEMPLATES_AUTO_RELOAD = True,
@@ -44,6 +45,21 @@ def create_app():
 
 app = create_app()
 
+@app.cli.command('initdb')
+def initdb_command():
+    db.drop_all()
+    db.create_all()
+    populateDB()
+    print('Initialized the database.')
+    
+@app.before_request
+def before_request():
+    g.user = None
+    if 'uid' in session:
+        g.user = User.query.filter_by(id=session['uid']).first()
+    eprint("g.user: " + str(g.user))
+    eprint("event.count: " + str(Event.query.count()))
+
 @app.route("/register/", methods=["GET", "POST"])
 def signer():
     if g.user:
@@ -69,10 +85,21 @@ def logger():
     elif request.method == "POST":
         POST_USER = str(request.form['user'])
         POST_PASS = str(request.form['pass'])
-        if User.query.filter(User.username==POST_USER, User.password==POST_PASS):
+        if (POST_USER == "owner") and (POST_PASS == "pass"):
+            session["username"] = "owner"
+            session["uid"] = 1
+            session["staff"] = "owner"
+            flash("Successfully logged in as Mr. Manager")
+            return redirect(url_for("owner"))
+        elif User.query.filter(User.username==POST_USER, User.password==POST_PASS):
             session["username"] = POST_USER
             session["uid"] = User.query.filter(User.username==POST_USER).first().id
-            flash("Successfully logged in!")
+            flash("Successfully logged in!  " + session["username"])
+            if User.query.filter(User.username==POST_USER).first().staff == True:
+                session["staff"] = True
+                return redirect(url_for("staff", uid=session["uid"]))
+            else:
+                return redirect(url_for("customer", uid=session["uid"]))
             return redirect(url_for("profile", uid=session["uid"]))
         else:
             flash("Error logging you in!")
@@ -97,41 +124,66 @@ def profile(uid=None):
         return Response(render_template("accounts/loginPage.html"), status=200, mimetype='text/html')
         abort(404)
 
+@app.route("/owner/")
+def owner():
+    if g.user.id != 1:
+        return redirect(url_for("index"))
+    elif g.user.id == 1:
+        if Event.query.count() < 1: flash("no events scheduled")
+        return render_template("types/owner.html")
+    else:
+        abort(404)
+        
+@app.route("/staff/<uid>")
+def staff(uid=None):
+    if not uid:
+        return redirect(url_for("index"))
+    elif g.user.staff == True and g.user.id == uid:
+        return render_template("types/staff.html", user=User.query.filter(User.id==uid).first())
+    else:
+        abort(404)
+
+@app.route("/customer/<uid>")
+def customer(uid=None):
+    eprint("customer" + uid)
+
+    if not uid or not g.user:
+        return redirect(url_for("index"))
+    elif g.user.staff != True and g.user.id == uid:
+        eprint("render")
+        return Response(render_template("types/customer.html", user=g.user), status=200, mimetype='text/html')
+    else:
+        eprint("404")
+        abort(404)
+        
 @app.route("/logout/")
 def unlogger():
     if "username" in session:
         session.clear()
         flash("Successfully logged out!")
-        return redirect(url_for("events"))
+        return redirect(url_for("index"))
     else:
         flash("Not currently logged in!")
         return redirect(url_for("logger"))
 
 @app.route("/events/")
 def events():
-    return render_template("events/events.html", items=Event.query.order_by(Event.id.asc()).all())
+    if g.user.staff != True:
+        flash("Access to events denied.")
+        return redirect(url_for("index"))
+    elif g.user.staff == True:
+        flash("List of all events.")
+        return render_template("events/events.html", items=Event.query.order_by(Event.id.asc()).all())
+    else:
+        abort(404)
+        
+@app.route("/newevent/")
+def newEvent():
+    if g.user:
+        return render_template("events/newEvent.html")
+    else:
+        abort(404)
 
-@app.before_request
-def before_request():
-    g.user = None
-    if 'uid' in session:
-        g.user = User.query.filter_by(id=session['uid']).first()
-
-@app.cli.command('initdb')
-def initdb_command():
-    db.drop_all()
-    db.create_all()
-    populateDB()
-    print('Initialized the database.')
-
-
-@app.route("/test")
-@app.route("/test/")
-def tester():
-    msg = 'test'
-    return Response(render_template('test.html', testMessage=msg), status=203, mimetype='text/html')
-
-@app.route("/db")
 @app.route("/db/")
 def testDB():
     msg=""
@@ -156,7 +208,7 @@ def error404():
 
 @app.route('/418/')
 def err418(error=None):
-    return Response(render_template('418.html', errno=error), status=418, mimetype='text/html')
+    return Response(render_template('404.html', errno=error), status=418, mimetype='text/html')
 
 @app.route('/favicon.ico') 
 def favicon():

@@ -45,4 +45,5 @@ header {
 	flex-direction: column;
 	justify-content: space-evenly;
 	font-size: smaller;
+	padding: 1.5em;
 }
