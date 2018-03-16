@@ -32,3 +32,6 @@ goto project directory >>> cd C:\Users\E\git\201801-so-you-think-you-can-cater-e
 set FLASK_APP=catering.py
 
 flask initdb {drop, create, populate}
+
+
+visit /db/ to view all objects in the database for testing purposes

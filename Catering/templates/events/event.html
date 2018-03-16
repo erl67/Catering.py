@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %} {{event.eventname}} - {{ super() }} {% endblock %}
+
+{% block body %}
+
+	{% if event == [] %}
+		<h4>Event Not Found. This shouldn't happen</h4>
+	{% else %}
+		<h3>{{event.eventname}}</h3>
+		Event Date:
+		Client: 
+		
+			
+		{% if event.staff1 == None and event.staff2 == None and event.staff3 == None %}
+			<h6>No staff</h6>
+		{% else %}
+		<ul>
+			<li>{{event.staff1}}</li>
+			<li>{{event.staff2}}</li>
+			<li>{{event.staff3}}</li>
+		</ul>
+		{% endif %}
+			
+		
+	{% endif %}
+
+{% endblock %}

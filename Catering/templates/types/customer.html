@@ -4,9 +4,9 @@
 
 {% block body %}
 
-	
-	<a href="{{ url_for('newEvent') }}">Request new event</a>
-	
+	<div class="new-thing">
+		<a href="{{ url_for('newEvent') }}">Request new event</a>
+	</div>
 	
 	{{ items }}
 	{{ items.length }}
@@ -22,4 +22,5 @@
 		{% endfor %}
 		</ul>
 	{% endif %}
+	
 {% endblock %}

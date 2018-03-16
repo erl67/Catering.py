@@ -16,7 +16,7 @@ def create_app():
     
     app.config.update(dict(
         DEBUG=True,
-#         DEBUG_TB_INTERCEPT_REDIRECTS = True,
+        DEBUG_TB_INTERCEPT_REDIRECTS = True,
         SQLALCHEMY_TRACK_MODIFICATIONS = False,
         SECRET_KEY='erl67',
         TEMPLATES_AUTO_RELOAD = True,
@@ -55,6 +55,7 @@ def initdb_command():
 @app.before_request
 def before_request():
     g.user = None
+    g.events = None
     if 'uid' in session:
         g.user = User.query.filter_by(id=session['uid']).first()
         if g.user.staff == True:
@@ -85,6 +86,11 @@ def signer():
             flash("Error logging you in!")
     return Response(render_template("accounts/loginPage.html"), status=200, mimetype='text/html')
 
+@app.route("/registerstaff/")
+def signerStaff():
+    flash("TBD")
+    abort(404)
+        
 @app.route("/login/", methods=["GET", "POST"])
 def logger():
     if "username" in session:
@@ -138,7 +144,7 @@ def owner():
         return redirect(url_for("index"))
     elif g.user.id == 1:
         if Event.query.count() < 1: flash("no events scheduled")
-        return render_template("types/owner.html")
+        return render_template("types/owner.html", user=g.user, events=g.events)
     else:
         abort(404)
         
@@ -151,8 +157,9 @@ def staff(uid=None):
     else:
         abort(404)
         
+        
 @app.route("/customer/")
-def customers():
+def customers(uid=None):
     if not g.user:
         flash("must be logged in")
         return(url_for("index"))
@@ -162,15 +169,19 @@ def customers():
 @app.route("/customer/<uid>")
 def customer(uid=None):
     eprint("customer: " + uid + " " + str(g.user.staff))
-
-    if not uid or not g.user:
+    eprint("g.user.id == uid" + str(g.user.id) + "==" + uid + " returns:" + str(g.user.id == uid))
+    if not uid:
         return redirect(url_for("customers"))
-    elif g.user.staff != True and g.user.id == uid:
-        eprint("render")
-        return Response(render_template("types/customer.html", user=g.user), status=200, mimetype='text/html')
+    elif (g.user.staff == False) and (int(g.user.id) == int(uid)):
+        return redirect(url_for("customers"))
+    elif (g.user.id == 1):
+        flash("Viewing customer page as owner")
+        return redirect(url_for("customers"))
+    elif (g.user.staff == True):
+        flash("Viewing customer page as staff")
+        return redirect(url_for("customers"))
     else:
-        eprint("404")
-        abort(404)
+        return Response("something is broke here", status=200, mimetype='text/html')
         
 @app.route("/logout/")
 def unlogger():
@@ -189,9 +200,29 @@ def events():
         return redirect(url_for("index"))
     elif g.user.staff == True:
         flash("List of all events.")
-        return render_template("events/events.html", items=Event.query.order_by(Event.id.asc()).all())
+        return render_template("events/events.html", events=Event.query.order_by(Event.id.asc()).all())
     else:
         abort(404)
+        
+@app.route("/events/<eid>")
+def event(eid=None):
+    if g.user.staff != True:
+        flash("Access to events denied.")
+        return redirect(url_for("index"))
+    elif g.user.staff == True:
+        eprint("staff")
+        eventRS = Event.query.filter(Event.id==int(eid)).first()
+        eprint("\n" + str(eventRS) + "\n")
+        if eventRS == None:
+            flash("Event Id not found")
+            return redirect(url_for("events"))
+        else:
+            return render_template("events/event.html", event=eventRS)
+    else:
+        abort(404)
+        
+        
+        
         
 @app.route("/newevent/")
 def newEvent():
@@ -201,7 +232,7 @@ def newEvent():
         abort(404)
 
 @app.route("/db/")
-def testDB():
+def rawstats():
     msg=""
     msg += getUsers()
     msg += "\n\n"

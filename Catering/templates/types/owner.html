@@ -1,12 +1,32 @@
 {% extends "base.html" %}
 
-{% block title %}Owner Page! - {{ super() }}{% endblock %}
+{% block title %}Owner Page - {{ super() }}{% endblock %}
 
 {% block body %}
-	<a href="{{ url_for('newStaff') }}">Create new staff account</a>
-	<ul>
-		{% for i in items %}
-			<li><a class="event-list" href="/event/{{ i['id'] }}">{{ i['eventname'] }}</a>{{ i['date'] }}</li>
+
+	
+	<div class="new-thing">
+		<a href="{{ url_for('signerStaff') }}">Create new staff account</a>
+	</div>
+	<div class="new-thing">
+		<a href="{{ url_for('newEvent') }}">Add new event</a>
+	</div>
+	
+	{% if events == [] %}
+		<h4>No Pending Events</h4>
+	{% else %}
+		<h3>Pending Events </h3>
+	
+		<ul>
+		{% for i in events %}
+			<li><a class="event-list" href="{{url_for('event', eid=i.id)}}">{{ i['eventname'] }}</a>{{ i['date'] }}</li>
+			
+			{% if i['staff1'] == None and i['staff2'] == None and i['staff3'] == None %}
+			No staff
+			{% endif %}
+			
 		{% endfor %}
-	</ul>
+		</ul>
+	{% endif %}
+	
 {% endblock %}
