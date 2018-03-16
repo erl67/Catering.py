@@ -7,8 +7,6 @@ import os
 from flask import Flask, g, send_from_directory, flash, render_template, abort, request, redirect, url_for, session, Response
 from flask_debugtoolbar import DebugToolbarExtension
 from datetime import datetime
-
-
 from models import db, User, Event, populateDB
 from utils import eprint, getUsers, getEvents
 
@@ -18,11 +16,11 @@ def create_app():
     
     app.config.update(dict(
         DEBUG=True,
-        DEBUG_TB_INTERCEPT_REDIRECTS = True,
-        SQLALCHEMY_TRACK_MODIFICATIONS = False,
+        DEBUG_TB_INTERCEPT_REDIRECTS=True,
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
         SECRET_KEY='erl67',
-        TEMPLATES_AUTO_RELOAD = True,
-        SQLALCHEMY_DATABASE_URI = 'sqlite:///' + DB_NAME
+        TEMPLATES_AUTO_RELOAD=True,
+        SQLALCHEMY_DATABASE_URI='sqlite:///' + DB_NAME
     ))
     
     db.init_app(app)
@@ -63,9 +61,9 @@ def before_request():
         if g.user.staff == True:
             g.events = Event.query.order_by(Event.id.asc()).all()
         else:
-            g.events = Event.query.filter(Event.client==g.user.id).order_by(Event.date.asc()).all()
+            g.events = Event.query.filter(Event.client == g.user.id).order_by(Event.date.asc()).all()
     eprint("g.user: " + str(g.user))
-    eprint("g.events: " + str(g.events))
+#     eprint("g.events: " + str(g.events))
     
 @app.before_first_request
 def before_first_request():
@@ -79,9 +77,9 @@ def signer():
     elif request.method == "POST":
         POST_USER = str(request.form['user'])
         POST_PASS = str(request.form['pass'])
-        if User.query.filter(User.username==POST_USER, User.password==POST_PASS):
+        if User.query.filter(User.username == POST_USER, User.password == POST_PASS):
             session["username"] = POST_USER
-            session["uid"] = User.query.filter(User.username==POST_USER).first().id
+            session["uid"] = User.query.filter(User.username == POST_USER).first().id
             flash("Successfully logged in!")
             return redirect(url_for("profile", uid=session["uid"]))
         else:
@@ -101,7 +99,7 @@ def logger():
     elif request.method == "POST":
         POST_USER = str(request.form['user'])
         POST_PASS = str(request.form['pass'])
-        valid = User.query.filter(User.username==POST_USER, User.password==POST_PASS).first()
+        valid = User.query.filter(User.username == POST_USER, User.password == POST_PASS).first()
         eprint(str(valid))
         if (POST_USER == "owner") and (POST_PASS == "pass"):
             session["username"] = "owner"
@@ -134,8 +132,8 @@ def profile(uid=None):
     elif g.user:
         if g.user.id == uid:
             return render_template("accounts/curProfile.html", name=g.user)
-        elif User.query.filter(User.id==uid).first() != None:
-            return render_template("accounts/otherProfile.html", name=User.query.filter(User.id==uid).first().username)
+        elif User.query.filter(User.id == uid).first() != None:
+            return render_template("accounts/otherProfile.html", name=User.query.filter(User.id == uid).first().username)
         else:
             abort(404)
     else:
@@ -150,7 +148,7 @@ def owner():
         if Event.query.count() < 1: 
             flash("no events scheduled")
         else:
-            next = Event.query.order_by(Event.date.asc()).first()   #filter by now to avoid dates in past
+            next = Event.query.order_by(Event.date.asc()).first()  # filter by now to avoid dates in past
             days = str((next.date - datetime.now()).days)
             flash("next event: " + str(next.eventname))
             flash("in " + days + " days")
@@ -221,7 +219,7 @@ def event(eid=None):
         return redirect(url_for("index"))
     elif g.user.staff == True:
         eprint("staff")
-        eventRS = Event.query.filter(Event.id==int(eid)).first()
+        eventRS = Event.query.filter(Event.id == int(eid)).first()
         eprint("\n" + str(eventRS) + "\n")
         if eventRS == None:
             flash("Event Id not found")
@@ -231,8 +229,7 @@ def event(eid=None):
     else:
         abort(404)
         
-        
-        
+
         
 @app.route("/newevent/")
 def newEvent():
@@ -243,7 +240,7 @@ def newEvent():
 
 @app.route("/db/")
 def rawstats():
-    msg=""
+    msg = ""
     msg += getUsers()
     msg += "\n\n"
     msg += getEvents()
@@ -263,13 +260,14 @@ def page_not_found(error):
 def error404():
     abort(404)
 
+
 @app.route('/418/')
 def err418(error=None):
     return Response(render_template('404.html', errno=error), status=418, mimetype='text/html')
 
 @app.route('/favicon.ico') 
 def favicon():
-    #eprint('loading icon')
+    # eprint('loading icon')
     return send_from_directory(os.path.join(app.root_path, 'static'), 'faviconF.ico', mimetype='image/vnd.microsoft.icon')
 
 if __name__ == "__main__":

@@ -3,6 +3,10 @@
 {% block title %}Staff Page! - {{ super() }}{% endblock %}
 
 {% block body %}
+
+    {% include 'events/eventlist.html' %}
+
+
 	<ul>
 		{% for i in items %}
 			<li><a class="event-list" href="/event/{{ i['id'] }}">{{ i['eventname'] }}</a>{{ i['date'] }}</li>
