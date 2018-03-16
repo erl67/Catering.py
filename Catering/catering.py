@@ -6,6 +6,8 @@ import os
 
 from flask import Flask, g, send_from_directory, flash, render_template, abort, request, redirect, url_for, session, Response
 from flask_debugtoolbar import DebugToolbarExtension
+from datetime import datetime
+
 
 from models import db, User, Event, populateDB
 from utils import eprint, getUsers, getEvents
@@ -99,17 +101,19 @@ def logger():
     elif request.method == "POST":
         POST_USER = str(request.form['user'])
         POST_PASS = str(request.form['pass'])
+        valid = User.query.filter(User.username==POST_USER, User.password==POST_PASS).first()
+        eprint(str(valid))
         if (POST_USER == "owner") and (POST_PASS == "pass"):
             session["username"] = "owner"
             session["uid"] = 1
             session["staff"] = "owner"
             flash("Successfully logged in as Mr. Manager")
             return redirect(url_for("owner"))
-        elif User.query.filter(User.username==POST_USER, User.password==POST_PASS):
+        elif valid is not None:
             session["username"] = POST_USER
-            session["uid"] = User.query.filter(User.username==POST_USER).first().id
+            session["uid"] = valid.id
             flash("Successfully logged in!  " + session["username"])
-            if User.query.filter(User.username==POST_USER).first().staff == True:
+            if valid.staff == True:
                 session["staff"] = True
                 return redirect(url_for("staff", uid=session["uid"]))
             else:
@@ -143,7 +147,13 @@ def owner():
     if g.user.id != 1:
         return redirect(url_for("index"))
     elif g.user.id == 1:
-        if Event.query.count() < 1: flash("no events scheduled")
+        if Event.query.count() < 1: 
+            flash("no events scheduled")
+        else:
+            next = Event.query.order_by(Event.date.asc()).first()   #filter by now to avoid dates in past
+            days = str((next.date - datetime.now()).days)
+            flash("next event: " + str(next.eventname))
+            flash("in " + days + " days")
         return render_template("types/owner.html", user=g.user, events=g.events)
     else:
         abort(404)
@@ -152,8 +162,8 @@ def owner():
 def staff(uid=None):
     if not uid:
         return redirect(url_for("index"))
-    elif g.user.staff == True and g.user.id == uid:
-        return render_template("types/staff.html", user=User.query.filter(User.id==uid).first())
+    elif g.user.staff == True and g.user.id == int(uid):
+        return render_template("types/staff.html", user=g.user)
     else:
         abort(404)
         
@@ -200,7 +210,7 @@ def events():
         return redirect(url_for("index"))
     elif g.user.staff == True:
         flash("List of all events.")
-        return render_template("events/events.html", events=Event.query.order_by(Event.id.asc()).all())
+        return render_template("events/events.html", events=Event.query.order_by(Event.date.asc()).all())
     else:
         abort(404)
         

@@ -4,21 +4,6 @@
 
 {% block body %}
 
-	{% if events == [] %}
-		<h4>No Pending Events</h4>
-	{% else %}
-		<h3>Pending Events </h3>
-	
-		<ul>
-		{% for i in events %}
-			<li><a class="event-list" href="{{url_for('event', eid=i.id)}}">{{ i['eventname'] }}</a>{{ i['date'] }}</li>
-			
-			{% if i['staff1'] == None and i['staff2'] == None and i['staff3'] == None %}
-			No staff
-			{% endif %}
-			
-		{% endfor %}
-		</ul>
-	{% endif %}
+    {% include 'events/eventlist.html' %}
 
 {% endblock %}

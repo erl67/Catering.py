@@ -4,7 +4,8 @@
 {% block head %}
 {% endblock %}
 {% block body %}
-{{g.user.__str__}}
+{{g.user.__str__()}}
+
 <pre>
 
 {{ testMessage }}

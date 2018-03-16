@@ -8,12 +8,14 @@
 		<h4>Event Not Found. This shouldn't happen</h4>
 	{% else %}
 		<h3>{{event.eventname}}</h3>
-		Event Date:
-		Client: 
+		
+		Event Date: {{event.date.strftime('%d %B, %y')}}
+		<br/>
+		Client: {{event.client}}
 		
 			
 		{% if event.staff1 == None and event.staff2 == None and event.staff3 == None %}
-			<h6>No staff</h6>
+			<h6>No staff schedule</h6>
 		{% else %}
 		<ul>
 			<li>{{event.staff1}}</li>

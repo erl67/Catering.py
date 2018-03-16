@@ -38,9 +38,9 @@ class Event(db.Model):
         self.date = date
         self.client = 1 if client == None else client 
         self.created = datetime.utcnow() if created == None else created 
-        self.staff1 = None
-        self.staff2 = None
-        self.staff3 = None
+        self.staff1 = None if staff1 == None else staff1 
+        self.staff2 = None if staff2 == None else staff2
+        self.staff3 = None if staff3 == None else staff3
 
     def __repr__(self):
         return "<Event {}>".format(repr(self.eventname))

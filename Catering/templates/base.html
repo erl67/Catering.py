@@ -25,16 +25,17 @@
   {% if g.user %}
   
   	logged in as: {{ g.user.username }}
+  	<br/><br/>
   	
     <a href="{{ url_for('profile', uid=g.user.id) }}">profile</a>
     
     {% if g.user.staff==False %}
     	<a href="{{ url_for('customer', uid=g.user.id) }}">customer page</a>
     {% elif g.user.id==1 %}
-    	<a href="{{ url_for('owner')}}">owner page</a>
-    	<a href="{{ url_for('rawstats')}}" style="font-size:smallest;font-weight:light;">raw</a>
+    	<a href="{{ url_for('owner')}}">owner page</a><br/>
+    	<a href="{{ url_for('rawstats')}}" style="font-size:60%">  raw</a>
     {% elif g.user.staff==True %}
-    	<a href="#">staff page</a>
+    	<a href="{{ url_for('staff', uid=g.user.id) }}">staff page</a>
     {% else %}
     	<a href="#">page not found</a>
     {% endif %}
@@ -62,7 +63,7 @@
 	{% endwith %}
 </header>
 
-<script type='text/javascript'>
+<script type='text/javascript' id='footer'>
 	colorize(['page']);
 	colorizeText(['page'], true);
 	footerBar();
