@@ -1,4 +1,4 @@
-REBUILD_DB = True
+REBUILD_DB = False
 
 import os
 # from tendo import singleton    #not helpful for debugging
@@ -6,6 +6,7 @@ import os
 
 from flask import Flask, g, send_from_directory, flash, render_template, abort, request, redirect, url_for, session, Response
 from flask_debugtoolbar import DebugToolbarExtension
+from sqlalchemy import or_, and_
 from datetime import datetime
 from models import db, User, Event, populateDB
 from utils import eprint, getUsers, getEvents
@@ -161,7 +162,13 @@ def staff(uid=None):
     if not uid:
         return redirect(url_for("index"))
     elif g.user.staff == True and g.user.id == int(uid):
-        return render_template("types/staff.html", user=g.user)
+        uid = int(uid)
+#         events = Event.query.filter(or_(Event.staff1==uid, Event.staff2==uid, Event.staff3==uid)).order_by(Event.date.asc()).all()
+        events = [g for g in g.events if g.staff1==uid or g.staff2==uid or g.staff3 == uid]
+        openEvents = Event.query.filter(or_(Event.staff1==None, Event.staff2==None, Event.staff3==None)).order_by(Event.date.asc()).all()
+        openEvents = [o for o in openEvents if o.staff1!=uid and o.staff2!=uid and o.staff3!=uid]
+        eprint(str(openEvents))                            
+        return render_template("types/staff.html", user=g.user, events=events, openevents=openEvents)
     else:
         abort(404)
         

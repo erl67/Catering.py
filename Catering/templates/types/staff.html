@@ -1,15 +1,51 @@
 {% extends "base.html" %}
 
-{% block title %}Staff Page! - {{ super() }}{% endblock %}
+{% block title %}Staff {{user.username}} - {{ super() }}{% endblock %}
 
 {% block body %}
 
-    {% include 'events/eventlist.html' %}
-
+{% if events == [] %}
+	<h4>Not Sceheduled For Any Events</h4>
+{% else %}
+	<h3>Scheduled Events </h3>
 
 	<ul>
-		{% for i in items %}
-			<li><a class="event-list" href="/event/{{ i['id'] }}">{{ i['eventname'] }}</a>{{ i['date'] }}</li>
-		{% endfor %}
+	{% for i in events %}
+		<li class="event-list">
+			<a class="event-list" href="{{url_for('event', eid=i.id)}}">{{ i.eventname }}</a> 
+			{{ i.date.strftime('%d %B %Y') }} 
+		
+			{% if i.staff1 == None and i.staff2 == None and i.staff3 == None %}
+				<span class="event-empty">No staff</span>
+			{% endif %}
+		
+		</li>
+	{% endfor %}
 	</ul>
+{% endif %}
+
+{% if openEvents == [] %}
+	<h4>No Open Events</h4>
+{% else %}
+	<h3>Signup for Event </h3>
+
+	<ul>
+	{% for i in openevents %}
+		<li class="event-list">
+			<a class="event-list" href="{{url_for('event', eid=i.id)}}">{{ i.eventname }}</a> 
+			{{ i.date.strftime('%d %B %Y') }} 
+		
+			{% if i.staff1 == None and i.staff2 == None and i.staff3 == None %}
+				<span class="event-empty">No staff</span>
+			{% endif %}
+		
+		</li>
+	{% endfor %}
+	</ul>
+{% endif %}
+
+{#    {% include 'events/eventlist.html' %}#}
+
+
+
 {% endblock %}

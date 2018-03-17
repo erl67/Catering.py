@@ -1,5 +1,5 @@
 # from __main__ import *     
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy 
 from datetime import datetime, timedelta
 from random import randrange
 
@@ -68,7 +68,7 @@ def populateDB():
     db.session.add(Event(eventname="🍸Cocktail Party🍸", email="test2@email", client=10, staff1=8, staff2=9, staff3=7, date=datetime.utcnow()+timedelta(days=randrange(100)), created=datetime.utcnow()-timedelta(days=randrange(100))))
     db.session.add(Event(eventname="🎊Confetti Event🎊", email="test2@email", client=11, date=datetime.utcnow()+timedelta(days=randrange(100)), created=datetime.utcnow()-timedelta(days=randrange(100))))
     db.session.add(Event(eventname="🥂Champagne Testing🥂", email="test2@email", staff1=7, staff2=5, staff3=6, client=12, date=datetime.utcnow()+timedelta(days=randrange(100)), created=datetime.utcnow()-timedelta(days=randrange(100))))
-    db.session.add(Event(eventname="🎂 Birthday Cake or something🎂", email="test2@email", client=13, date=datetime.utcnow()+timedelta(days=randrange(100)), created=datetime.utcnow()-timedelta(days=randrange(100))))
+    db.session.add(Event(eventname="🎂 Birthday Cake or something🎂", email="test2@email", staff3=10, client=13, date=datetime.utcnow()+timedelta(days=randrange(100)), created=datetime.utcnow()-timedelta(days=randrange(100))))
     db.session.add(Event(eventname="🎁 Birthday Present or something🎁", email="test2@email", client=13, date=datetime.utcnow()+timedelta(days=randrange(100)), created=datetime.utcnow()-timedelta(days=randrange(100))))
     db.session.add(Event(eventname="🎃Halloween Party🎃", email="test2@email", client=14, date=datetime(2018, 10, 31, 20, 0), created=datetime.utcnow()-timedelta(days=randrange(100))))
     db.session.commit()
