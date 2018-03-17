@@ -7,10 +7,15 @@ html, body {
 	display: flex; 
 	flex-direction: column;
 	justify-content: space-evenly;
+	align-items: center;
 /*     font-family: papyrus; */
+    font-family: Comic Sans;
     font-weight: bold;
 }
 #page {
+}
+h1, h2, h3, h4, h5, h6{
+	text-align: center;
 }
 div {
 	padding: 1em;
@@ -57,12 +62,13 @@ li.event-list {
 }
 
 .flashes {
-	margin-top: 50px;
-	margin-left 50px;
-	color: rbga(255,0,0,1);
+	margin-top: 0;
+	margin-left: 1em;
+	margin-bottom: 3em;
 	font-variant: small-caps;
-	box-shadow:0px 0px 50px 30px #b06259 ;
+	box-shadow:0px 0px 3em 2em #b06259 ;
 	padding: 1.5em;
+	list-style-type: circle;
 }
 
 header {
@@ -75,3 +81,22 @@ header {
 	font-size: smaller;
 	padding: 1.5em;
 }
+input:valid {
+	background-color: rgba(157, 223, 154, 0.9);
+}
+input:invalid {
+	background-color: rgba(225, 85, 85, 0.7);
+}
+input, select {
+	margin-top: 1em;
+	margin-bottom: 2em;
+}
+input[type=submit]:valid, button {
+	font-size: 1.2em;
+	background-color: buttonface;
+	css: -webkit-appearance: none;
+}
+input:focus {
+	background-color: rgba(239, 238, 203, 0.9);
+}
+ 

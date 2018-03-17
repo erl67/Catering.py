@@ -17,21 +17,27 @@
 </head>
 <body id="page">
 <header>
+  {% with messages = get_flashed_messages() %}
+	{% if messages %}
+		<ul class="flashes">
+			{% for m in messages %}
+				<li>{{ m }}</li>
+			{% endfor %}
+		</ul>
+	{% endif %}
+	{% endwith %}
 {% block header %}
 {% endblock %}
 
   {% if g.user %}
-  
   	logged in as: {{ g.user.username }}
   	<br/><br/>
-  	
     <a href="{{ url_for('profile', uid=g.user.id) }}">profile</a>
-    
     {% if g.user.staff==False %}
     	<a href="{{ url_for('customer', uid=g.user.id) }}">customer page</a>
     {% elif g.user.id==1 %}
     	<a href="{{ url_for('owner')}}">owner page</a><br/>
-    	<a href="{{ url_for('rawstats')}}" style="font-size:60%">  raw</a>
+    	<a href="{{ url_for('rawstats')}}" style="font-size:60%">raw data</a>
     {% elif g.user.staff==True %}
     	<a href="{{ url_for('staff', uid=g.user.id) }}">staff page</a>
     {% else %}
@@ -42,30 +48,26 @@
     <a href="{{ url_for('unlogger') }}">sign out</a>
     
   {% else %}
+  	<h2>Login or Register for access</h2>
   
     <a href="{{ url_for('logger') }}">sign in</a>
     <a href="{{ url_for('signer') }}">register</a> 
     
   {% endif %}
   
-  {% with messages = get_flashed_messages() %}
-  
-	{% if messages %}
-		<ul class="flashes">
-			{% for m in messages %}
-				<li>{{ m }}</li>
-			{% endfor %}
-		</ul>
-	{% endif %}
-	
-	{% endwith %}
+
 </header>
+
 {% block body %}
 {% endblock %}
+
+{% if not g.user %}
+{% endif %}
+
 <script type='text/javascript' id='footer'>
 	colorize(['page']);
 	colorizeText(['page'], true);
-	footerBar();
+{#	footerBar();#}
 </script>
 </body>
 </html>

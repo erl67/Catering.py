@@ -1,4 +1,4 @@
-REBUILD_DB = False
+REBUILD_DB = True
 
 import os
 # from tendo import singleton    #not helpful for debugging
@@ -75,22 +75,53 @@ def signer():
     if g.user:
         flash("Already logged in!")
         return redirect(url_for("profile", uid=g.user.id))
+    elif request.method == "GET":
+        flash("Complete form to register")
     elif request.method == "POST":
         POST_USER = str(request.form['user'])
         POST_PASS = str(request.form['pass'])
-        if User.query.filter(User.username == POST_USER, User.password == POST_PASS):
-            session["username"] = POST_USER
-            session["uid"] = User.query.filter(User.username == POST_USER).first().id
-            flash("Successfully logged in!")
-            return redirect(url_for("profile", uid=session["uid"]))
+        POST_EMAIL = str(request.form['mail'])
+        if POST_USER != None and POST_PASS != None:
+            newUser = User(POST_USER, POST_PASS, POST_EMAIL)
+            db.session.add(newUser)
+            try:
+                db.session.commit()
+                if User.query.filter(User.username == POST_USER, User.password == POST_PASS):
+                    flash("Successfully registered! " + POST_USER + ":" + POST_PASS)
+                    session["username"] = POST_USER
+                    session["uid"] = User.query.filter(User.username == POST_USER).first().id
+                    return redirect(url_for("profile", uid=session["uid"]))
+            except Exception as e:
+                db.session.rollback()
+                eprint(str(e))
+                flash("Error to database")
         else:
-            flash("Error logging you in!")
-    return Response(render_template("accounts/loginPage.html"), status=200, mimetype='text/html')
+            flash("Error registering new account")
+    return Response(render_template("accounts/newAccount.html"), status=200, mimetype='text/html')
 
-@app.route("/registerstaff/")
+@app.route("/registerstaff/", methods=["GET", "POST"])
 def signerStaff():
-    flash("TBD")
-    abort(404)
+    if request.method == "GET":
+        flash("Complete form to create new staff account")
+    elif request.method == "POST":
+        POST_USER = str(request.form['user'])
+        POST_PASS = str(request.form['pass'])
+        POST_EMAIL = str(request.form['mail'])
+        if POST_USER != None and POST_PASS != None:
+            newUser = User(POST_USER, POST_PASS, POST_EMAIL, True)
+            db.session.add(newUser)
+            try:
+                db.session.commit()
+                if User.query.filter(User.username == POST_USER, User.password == POST_PASS):
+                    flash("Added account " + POST_USER + ":" + POST_PASS)
+                    return Response(render_template("accounts/newAccount.html"), status=200, mimetype='text/html')
+            except Exception as e:
+                db.session.rollback()
+                eprint(str(e))
+                flash("Error adding user to database")
+        else:
+            flash("Error registering new account")
+    return Response(render_template("accounts/newAccount.html"), status=200, mimetype='text/html')
         
 @app.route("/login/", methods=["GET", "POST"])
 def logger():
@@ -126,7 +157,7 @@ def logger():
 def profiles():
     return render_template("accounts/profiles.html", users=User.query.order_by(User.id.asc()).all())
 
-@app.route("/profile/<uid>")
+@app.route("/profile/<int:uid>")
 def profile(uid=None):
     if not uid:
         return redirect(url_for("profiles"))
@@ -157,13 +188,13 @@ def owner():
     else:
         abort(404)
         
-@app.route("/staff/<uid>")
+@app.route("/staff/<int:uid>")
 def staff(uid=None):
     if not uid:
         return redirect(url_for("index"))
     elif g.user.staff == True and g.user.id == int(uid):
         uid = int(uid)
-#         events = Event.query.filter(or_(Event.staff1==uid, Event.staff2==uid, Event.staff3==uid)).order_by(Event.date.asc()).all()
+        #events = Event.query.filter(or_(Event.staff1==uid, Event.staff2==uid, Event.staff3==uid)).order_by(Event.date.asc()).all()
         events = [g for g in g.events if g.staff1==uid or g.staff2==uid or g.staff3 == uid]
         openEvents = Event.query.filter(or_(Event.staff1==None, Event.staff2==None, Event.staff3==None)).order_by(Event.date.asc()).all()
         openEvents = [o for o in openEvents if o.staff1!=uid and o.staff2!=uid and o.staff3!=uid]
@@ -219,7 +250,7 @@ def events():
     else:
         abort(404)
         
-@app.route("/events/<eid>")
+@app.route("/events/<int:eid>")
 def event(eid=None):
     if g.user.staff != True:
         flash("Access to events denied.")
@@ -232,7 +263,8 @@ def event(eid=None):
             flash("Event Id not found")
             return redirect(url_for("events"))
         else:
-            return render_template("events/event.html", event=eventRS)
+            staff =  (User.query.filter(User.id==eventRS.staff1).first(), User.query.filter(User.id==eventRS.staff2).first(), User.query.filter(User.id==eventRS.staff3).first())
+            return render_template("events/event.html", event=eventRS, staff=staff)
     else:
         abort(404)
         

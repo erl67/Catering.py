@@ -7,12 +7,17 @@
 	{% if event == [] %}
 		<h4>Event Not Found. This shouldn't happen</h4>
 	{% else %}
-		<h3>{{event.eventname}}</h3>
+		<h2>{{event.eventname}}</h2>
 		
-		Event Date: {{event.date.strftime('%d %B, %y')}}
+		{{event.staff1, staff[0]}}</br>
+		{{event.staff2, staff[1]}}</br>
+		{{event.staff3, staff[2]}}</br>
+		
+		<br/>{{ event.staffers }}
+		
+		<h3>Event Date: {{event.date.strftime('%d %B, %y')}}</h3>
 		<br/>
 		Client: {{event.client}}
-		
 			
 		{% if event.staff1 == None and event.staff2 == None and event.staff3 == None %}
 			<h6>No staff schedule</h6>

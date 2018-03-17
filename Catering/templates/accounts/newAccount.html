@@ -3,10 +3,15 @@
 {% block title %}Signup for Customer Account! - {{ super() }}{% endblock %}
 
 {% block body %}
+
+{% if g.user.id==1 %}
+	<h3>Create New Staff Account</h3>
+{% endif %}
+
 		<form action="" method="post">
-			Username:  <input type="text" name="user" />
+			Username:  <input type="text" name="user" maxlength="16" minlength="1" required/>
 			<br />
-			Password:  <input type="text" name="pass" />
+			Password:  <input type="text" name="pass" maxlength="16" minlength="1" required/>
 			<br />
 			Email:  <input type="email" name="mail" />
 			<br />

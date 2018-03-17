@@ -5,6 +5,11 @@ from random import randrange
 
 db = SQLAlchemy()
 
+staffers = db.Table('staffers',
+    db.Column('event_id', db.Integer, db.ForeignKey('event.id'), primary_key=True),
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True)
+)
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -12,7 +17,7 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=False, nullable=True)
     staff = db.Column(db.Boolean, default=False)
     
-    def __init__(self, username, password, email, staff):
+    def __init__(self, username, password, email, staff=None):
         self.username = username
         self.password = password
         self.email = email
@@ -27,10 +32,12 @@ class Event(db.Model):
     email = db.Column(db.String(120), unique=False, nullable=True)
     date = db.Column(db.DateTime, nullable=False)
     created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
-    client = db.Column(db.Integer, nullable=False)
-    staff1 = db.Column(db.Integer, nullable=True)
-    staff2 = db.Column(db.Integer, nullable=True)
-    staff3 = db.Column(db.Integer, nullable=True)
+    client = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    staff1 = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    staff2 = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    staff3 = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    staffers = db.relationship('User', secondary=staffers, lazy='subquery', backref=db.backref('users', lazy=True))
+#     clientID = db.relationship('User', backref=db.backref('events', lazy=True))
     
     def __init__(self, eventname, email, date, created, client, staff1=None, staff2=None, staff3=None):
         self.eventname = eventname
@@ -44,7 +51,8 @@ class Event(db.Model):
 
     def __repr__(self):
         return "<Event {}>".format(repr(self.eventname))
-    
+ 
+ 
 
 def populateDB():
     db.session.add(User(username="owner", password="pass", email="owner@catering.py", staff=True))
