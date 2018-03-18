@@ -1,15 +1,15 @@
 # So You Think You Can Cater
 
 Name: Eric Laslo
+
 Pitt ID: ERL67@pitt.edu
+
 
 ## Installation
 
-1. flask run
+1. FLASK_APP=catering.py && flask initdb && flask run
 
 2. http://127.0.0.1:5000/
-
-3. If flask works on 2.6.6 it will be hosted here cs1520.ericlaslo.com
 
 
 
