@@ -1,8 +1,6 @@
 REBUILD_DB = True
 
 import os
-# from tendo import singleton    #not helpful for debugging
-# inst = singleton.SingleInstance() 
 
 from flask import Flask, g, send_from_directory, flash, render_template, abort, request, redirect, url_for, session, Response
 from flask_debugtoolbar import DebugToolbarExtension
