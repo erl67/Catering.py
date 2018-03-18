@@ -311,5 +311,5 @@ def favicon():
 
 if __name__ == "__main__":
     print('Starting......')
-    app.run()
+    app.run(host='0.0.0.0')
 #     app.run(use_reloader=False)
