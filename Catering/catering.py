@@ -67,6 +67,16 @@ def before_request():
 @app.before_first_request
 def before_first_request():
     eprint("🥇")
+    
+@app.context_processor
+def utility_processor():
+    def getName(id):
+        user = User.query.filter(User.id==id).first()
+        if user != None:
+            return user.username
+        else:
+            return ""
+    return dict(getName=getName)
 
 @app.route("/register/", methods=["GET", "POST"])
 def signer():
@@ -261,22 +271,30 @@ def event(eid=None):
             flash("Event Id not found")
             return redirect(url_for("events"))
         else:
-            staff =  (User.query.filter(User.id==eventRS.staff1).first(), User.query.filter(User.id==eventRS.staff2).first(), User.query.filter(User.id==eventRS.staff3).first())
+            staff = (User.query.filter(User.id==eventRS.staff1).first(), User.query.filter(User.id==eventRS.staff2).first(), User.query.filter(User.id==eventRS.staff3).first())
             return render_template("events/event.html", event=eventRS, staff=staff)
     else:
         abort(404)
         
 
 @app.route("/deleteevent/", methods=["GET", "POST"])
-def rmevent(eid=None):
-    if g.user.userid != 1:
+def rmevent():
+    if g.user.id != 1:
         flash("Access to deleting events denied.")
         return redirect(url_for("index"))
     if request.method == "POST":
-        event = request.form.get("events", None)
-    if event != None:
-        flash("Deleting event " + str (event))
-        return redirect(url_for("owner"))
+        eventId = request.form.get("events", None)
+    if eventId != None:
+        event = Event.query.filter(Event.id==int(eventId)).first()
+        db.session.delete(event)
+        try:
+            db.session.commit()
+            flash("Deleted event: " + str(event.eventname))
+            return redirect(url_for("owner"))
+        except Exception as e:
+            db.session.rollback()
+            eprint(str(e))
+            flash("Error deleting event")
     else:
         abort(404)
         
@@ -321,5 +339,6 @@ def favicon():
 
 if __name__ == "__main__":
     print('Starting......')
-    app.run(host='0.0.0.0')
+    app.run()
+#     app.run(host='0.0.0.0')
 #     app.run(use_reloader=False)

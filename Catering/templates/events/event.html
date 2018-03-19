@@ -9,24 +9,27 @@
 	{% else %}
 		<h2>{{event.eventname}}</h2>
 		
-		{{event.staff1, staff[0]}}</br>
-		{{event.staff2, staff[1]}}</br>
-		{{event.staff3, staff[2]}}</br>
-		
-		<br/>{{ event.staffers }}
-		
 		<h3>Event Date: {{event.date.strftime('%d %B, %y')}}</h3>
 		<br/>
-		Client: {{event.client}}
+		
+		Client: {{ getName(event.client) }}
 			
 		{% if event.staff1 == None and event.staff2 == None and event.staff3 == None %}
-			<h6>No staff schedule</h6>
+			<h6>No staff scheduled</h6>
 		{% else %}
+		
 		<ul>
-			<li>{{event.staff1}}</li>
-			<li>{{event.staff2}}</li>
-			<li>{{event.staff3}}</li>
+			{% if event.staff1 != None %}
+				<li>{{event.staff1}} -- {{getName(event.staff1)}}</li>
+			{% endif %}
+			{% if event.staff2 != None %}
+				<li>{{event.staff2}} -- {{getName(event.staff2)}}</li>
+			{% endif %}
+			{% if event.staff3 != None %}
+				<li>{{event.staff3}} -- {{getName(event.staff3)}}</li>
+			{% endif %}
 		</ul>
+		
 		{% endif %}
 			
 		

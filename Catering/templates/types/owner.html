@@ -13,17 +13,19 @@
 	
     {% include 'events/eventlist.html' %}
     
-   <h4>Delete Event</h4>
-   
-   <form action="{{url_for("rmevent")}}" method="post">
-	    <select name="option" width="300px">
-		{% for e in g.events %}
-	    	<option value="{{ e.id }}" SELECTED>{{ e.eventname }}</option>
-    	{% endfor %} 
-	    </select>
-		<br/>
-	    <input type="submit" value="Delete Event">
-    </form>
-
+    {% if g.events != [] %}
+		<br/><br/>    
+	   <h3>Delete Event</h3>
+	   
+	   <form action="{{url_for("rmevent")}}" method="post">
+		    <select name="events">
+			{% for e in g.events %}
+		    	<option value="{{ e.id }}" SELECTED>{{ e.eventname }}</option>
+	    	{% endfor %} 
+		    </select>
+		    <input type="submit" value="Delete">
+	    </form>
+    
+	{% endif %}
 	
 {% endblock %}
