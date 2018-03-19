@@ -12,5 +12,18 @@
 	</div>
 	
     {% include 'events/eventlist.html' %}
+    
+   <h4>Delete Event</h4>
+   
+   <form action="{{url_for("rmevent")}}" method="post">
+	    <select name="option" width="300px">
+		{% for e in g.events %}
+	    	<option value="{{ e.id }}" SELECTED>{{ e.eventname }}</option>
+    	{% endfor %} 
+	    </select>
+		<br/>
+	    <input type="submit" value="Delete Event">
+    </form>
+
 	
 {% endblock %}

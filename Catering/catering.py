@@ -267,6 +267,18 @@ def event(eid=None):
         abort(404)
         
 
+@app.route("/deleteevent/", methods=["GET", "POST"])
+def rmevent(eid=None):
+    if g.user.userid != 1:
+        flash("Access to deleting events denied.")
+        return redirect(url_for("index"))
+    if request.method == "POST":
+        event = request.form.get("events", None)
+    if event != None:
+        flash("Deleting event " + str (event))
+        return redirect(url_for("owner"))
+    else:
+        abort(404)
         
 @app.route("/newevent/")
 def newEvent():

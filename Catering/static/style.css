@@ -99,4 +99,9 @@ input[type=submit]:valid, button {
 input:focus {
 	background-color: rgba(239, 238, 203, 0.9);
 }
- 
+form {
+	text-align: center;
+}
+select {
+	padding: 1em;
+}
