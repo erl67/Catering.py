@@ -16,22 +16,30 @@
 			
 		{% if event.staff1 == None and event.staff2 == None and event.staff3 == None %}
 			<h6>No staff scheduled</h6>
-		{% else %}
-		
-		<ul>
-			{% if event.staff1 != None %}
-				<li>{{event.staff1}} -- {{getName(event.staff1)}}</li>
-			{% endif %}
-			{% if event.staff2 != None %}
-				<li>{{event.staff2}} -- {{getName(event.staff2)}}</li>
-			{% endif %}
-			{% if event.staff3 != None %}
-				<li>{{event.staff3}} -- {{getName(event.staff3)}}</li>
-			{% endif %}
-		</ul>
-		
 		{% endif %}
 			
+		{% if event.staff1 == None or event.staff2 == None and event.staff3 == None %}
+			<h6><a href="{{url_for('eventsign', eid=event.id)}}">Signup for this event</a></h6>
+		{% endif %}
+		
+		
+		<ul>
+			<li>
+			{% if event.staff1 != None %}
+				{#event.staff1#}{{getName(event.staff1)}}</li>
+			{% endif %}
+			</li>
+			<li>
+			{% if event.staff2 != None %}
+				{#event.staff2#}{{getName(event.staff2)}}
+			{% endif %}
+			</li>
+			<li>
+			{% if event.staff3 != None %}
+				{#event.staff3#}{{getName(event.staff3)}}
+			{% endif %}
+			</li>
+		</ul>			
 		
 	{% endif %}
 

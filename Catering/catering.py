@@ -298,6 +298,34 @@ def rmevent():
     else:
         abort(404)
         
+@app.route("/eventsignup/<int:eid>", methods=["GET", "POST"])
+def eventsign(eid=None):
+    if g.user.staff != True:
+        flash("Access to events denied.")
+        return redirect(url_for("index"))
+    elif g.user.staff == True:
+        id = int(g.user.id)
+        eventRS = Event.query.filter(Event.id == int(eid)).first()
+        eprint("\n" + str(eventRS) + "\n")
+        if eventRS == None:
+            flash("Event ID not found")
+            return redirect(url_for("staff"), uid=id)
+        elif eventRS.staff1==id or eventRS.staff2==id or eventRS.staff3==id:
+            flash("Already registered for this event")
+            return redirect(url_for("staff"), uid=id)
+        else:
+#             db.session.add()
+            try:
+#                 db.session.commit()
+                flash("Registered for " + str(eventRS.eventname))
+            except Exception as e:
+                db.session.rollback()
+                eprint(str(e))
+                flash("Error signing up for event")   
+            return redirect(url_for("staff"), uid=id)
+    else:
+        abort(404)
+        
 @app.route("/newevent/")
 def newEvent():
     if g.user:
@@ -326,7 +354,6 @@ def page_not_found(error):
 @app.route('/404/')
 def error404():
     abort(404)
-
 
 @app.route('/418/')
 def err418(error=None):
