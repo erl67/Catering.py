@@ -26,6 +26,15 @@ class User(db.Model):
     def __repr__(self):
         return "<User {} {} {}>".format(repr(self.id), repr(self.username), repr(self.staff))
     
+    def Everything():
+        txt = "\t" + str(User.__table__) + "\n"
+        cols = User.__table__.columns.keys()
+        txt += (str(cols) + "\n")
+        resultSet = User.query.order_by(User.id.asc()).all()
+        for item in resultSet:
+            txt += ' '.join([str(getattr(item, col)) for col in cols]) +  "\n"
+        return txt
+    
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     eventname = db.Column(db.String(80), unique=True, nullable=False)
@@ -51,6 +60,15 @@ class Event(db.Model):
 
     def __repr__(self):
         return "<Event {}>".format(repr(self.eventname))
+    
+    def Everything():
+        txt = "\t" + str(Event.__table__) + "\n"
+        cols = Event.__table__.columns.keys()
+        txt += (str(cols) + "\n")
+        resultSet = Event.query.order_by(Event.id.asc()).all()
+        for item in resultSet:
+            txt += ' '.join([str(getattr(item, col)) for col in cols]) +  "\n"
+        return txt
  
  
 
@@ -84,4 +102,3 @@ def populateDB():
     return True
 
 print('Model loaded...')
-

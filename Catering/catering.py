@@ -1,13 +1,11 @@
 REBUILD_DB = True
-
 import os
-
+from sys import stderr
 from flask import Flask, g, send_from_directory, flash, render_template, abort, request, redirect, url_for, session, Response
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy import or_, and_
 from datetime import datetime
 from models import db, User, Event, populateDB
-from utils import eprint, getUsers, getEvents
 
 def create_app():
     app = Flask(__name__)
@@ -66,7 +64,7 @@ def before_request():
     
 @app.before_first_request
 def before_first_request():
-    eprint("🥇")
+    eprint("    🥇")
     
 @app.context_processor
 def utility_processor():
@@ -336,9 +334,9 @@ def newEvent():
 @app.route("/db/")
 def rawstats():
     msg = ""
-    msg += getUsers()
+    msg += User.Everything()
     msg += "\n\n"
-    msg += getEvents()
+    msg += Event.Everything()
     return Response(render_template('test.html', testMessage=msg), status=203, mimetype='text/html')
 
 @app.route('/')
@@ -361,11 +359,13 @@ def err418(error=None):
 
 @app.route('/favicon.ico') 
 def favicon():
-    # eprint('loading icon')
     return send_from_directory(os.path.join(app.root_path, 'static'), 'faviconF.ico', mimetype='image/vnd.microsoft.icon')
 
+def eprint(*args, **kwargs):
+    print(*args, file=stderr, **kwargs)
+    
 if __name__ == "__main__":
     print('Starting......')
-    app.run()
+#     app.run()
 #     app.run(host='0.0.0.0')
-#     app.run(use_reloader=False)
+    app.run(use_reloader=True)
