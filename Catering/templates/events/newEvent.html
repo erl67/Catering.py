@@ -6,10 +6,18 @@
 		<form action="" method="post">
 			Event name:  <input type="text" name="user" />
 			<br />
-			Client:  <input type="text" name="pass" />
+			Client:  <input type="text" name="pass" placeholder="{{ g.user.username }}" disabled/>
 			<br />
-			Date:  <input type="email" name="mail" />
+			Date:  <input type="date" name="eventdate" />
 			<br />
 			<input type="submit" value="submit" />
 		</form>
+{% endblock %}
+
+{% block script %}
+	// template
+	f = document.getElementById('flashbox');
+	b = document.getElementById('page-main');
+	if (f != null) b.prepend(f);
+	// template
 {% endblock %}

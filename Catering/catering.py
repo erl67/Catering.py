@@ -1,3 +1,4 @@
+from flask.helpers import get_flashed_messages
 REBUILD_DB = True
 import os
 from sys import stderr
@@ -81,8 +82,8 @@ def signer():
     if g.user:
         flash("Already logged in!")
         return redirect(url_for("profile", uid=g.user.id))
-    elif request.method == "GET":
-        flash("Complete form to register")
+    #elif request.method == "GET":
+        #flash("Complete form to register")
     elif request.method == "POST":
         POST_USER = str(request.form['user'])
         POST_PASS = str(request.form['pass'])
@@ -100,16 +101,16 @@ def signer():
             except Exception as e:
                 db.session.rollback()
                 eprint(str(e))
-                flash("Error to database")
+                flash("Error adding to database")
         else:
             flash("Error registering new account")
     return Response(render_template("accounts/newAccount.html"), status=200, mimetype='text/html')
 
 @app.route("/registerstaff/", methods=["GET", "POST"])
 def signerStaff():
-    if request.method == "GET":
-        flash("Complete form to create new staff account")
-    elif request.method == "POST":
+    #if request.method == "GET":
+        #flash("Complete form to create new staff account")
+    if request.method == "POST":
         POST_USER = str(request.form['user'])
         POST_PASS = str(request.form['pass'])
         POST_EMAIL = str(request.form['mail'])
@@ -120,6 +121,7 @@ def signerStaff():
                 db.session.commit()
                 if User.query.filter(User.username == POST_USER, User.password == POST_PASS):
                     flash("Added account " + POST_USER + ":" + POST_PASS)
+                    eprint(get_flashed_messages())
                     return Response(render_template("accounts/newAccount.html"), status=200, mimetype='text/html')
             except Exception as e:
                 db.session.rollback()

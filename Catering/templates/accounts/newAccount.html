@@ -5,9 +5,8 @@
 {% block body %}
 
 {% if g.user.id==1 %}
-	<h3>Create New Staff Account</h3>
+	<h3 id='first'>Create New Staff Account</h3>
 {% endif %}
-
 		<form action="" method="post">
 			Username:  <input type="text" name="user" maxlength="16" minlength="1" required/>
 			<br />
@@ -17,4 +16,12 @@
 			<br />
 			<input type="submit" value="submit" />
 		</form>
+{% endblock %}
+
+{% block script %}
+	// template
+	f = document.getElementById('flashbox');
+	b = document.getElementById('page-main');
+	if (f != null) b.prepend(f);
+	// template
 {% endblock %}

@@ -16,7 +16,7 @@
 <header>
   {% with messages = get_flashed_messages() %}
 	{% if messages %}
-		<ul class="flashes">
+		<ul class="flashes" id="flashbox">
 			{% for m in messages %}
 				<li>{{ m }}</li>
 			{% endfor %}
@@ -54,14 +54,17 @@
   
 
 </header>
-
+<div id="page-main">
 {% block body %}
 {% endblock %}
 
 {% if not g.user %}
 {% endif %}
+</div>
 
 <script type='text/javascript' id='footer'>
+{% block script %}
+{% endblock %}
 	colorize(['page']);
 	colorizeText(['page'], true);
 {#	footerBar();#}
