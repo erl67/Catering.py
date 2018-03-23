@@ -20,7 +20,7 @@
 	   <form action="{{url_for("rmevent")}}" method="post">
 		    <select name="events">
 			{% for e in g.events %}
-		    	<option value="{{ e.id }}" SELECTED>{{ e.eventname }}</option>
+		    	<option value="{{ e.id }}" SELECTED>{{ e.eventname | striptags}}</option>
 	    	{% endfor %} 
 		    </select>
 		    <input type="submit" value="Delete">

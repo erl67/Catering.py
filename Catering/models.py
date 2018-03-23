@@ -50,7 +50,7 @@ class Event(db.Model):
     
     def __init__(self, eventname, email, date, created, client, staff1=None, staff2=None, staff3=None):
         self.eventname = eventname
-        self.email = email
+        self.email = None if email == None else email
         self.date = date
         self.client = 1 if client == None else client 
         self.created = datetime.utcnow() if created == None else created 
@@ -69,6 +69,13 @@ class Event(db.Model):
         for item in resultSet:
             txt += ' '.join([str(getattr(item, col)) for col in cols]) +  "\n"
         return txt
+    
+    def DateBooked(newEvent):
+        rs = Event.query.order_by(Event.date.asc())
+        for item in rs:
+            if item.date.date() == newEvent.date():
+                return True
+        return False
  
  
 
@@ -88,7 +95,7 @@ def populateDB():
     db.session.add(User(username="customer4", password="pass", email="customer4@catering.py", staff=None))
     db.session.add(User(username="customer5", password="pass", email="customer5@catering.py", staff=None))
     db.session.add(User(username="customer6", password="pass", email="customer6@catering.py", staff=None))
-    db.session.add(Event(eventname="🎉Grand Opening🍾", email="test@email", client=1, staff1=5, staff2=6, staff3=7, date=datetime(2018, 4, 16, 23, 59), created=None))
+    db.session.add(Event(eventname="🎉Grand Opening🍾", email="test@email", client=1, staff1=5, staff2=6, staff3=7, date=datetime.utcnow()+timedelta(days=2), created=None))
     db.session.add(Event(eventname="🎆Grand Closing🎆", email="test2@email", client=1, staff1=5, date=datetime.utcnow()+timedelta(days=420), created=datetime.utcnow()-timedelta(days=420)))
     db.session.add(Event(eventname="🕶️Test Party🕶️", email="test2@email", client=4, date=datetime.utcnow()+timedelta(days=randrange(100)), created=datetime.utcnow()-timedelta(days=randrange(100))))
     db.session.add(Event(eventname="🍸Cocktail Party🍸", email="test2@email", client=10, staff1=8, staff2=9, staff3=7, date=datetime.utcnow()+timedelta(days=randrange(100)), created=datetime.utcnow()-timedelta(days=randrange(100))))

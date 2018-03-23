@@ -40,7 +40,7 @@ a.event-list {
 	text-decoration: none;
 }
 li.event-list {
-	margin: .3em;
+	margin: .5em;
 	list-style-type: square;
 }
 .event-full {
@@ -50,6 +50,7 @@ li.event-list {
 /* 	box-shadow: 0px 0px 10px 50px #b06259 ; */
 	border: 2px dashed red;
 	padding: .1em;
+	margin-left: 3em;
 }
 .user-owner {
 	
@@ -90,11 +91,19 @@ input:invalid {
 input, select {
 	margin-top: 1em;
 	margin-bottom: 2em;
+	padding: .3em;
+	text-align: center;
 }
-input[type=submit]:valid, button {
+input[type=submit], button {
 	font-size: 1.2em;
 	background-color: buttonface;
 	css: -webkit-appearance: none;
+}
+.cancel-event {
+	font-size: .8em;
+	padding: .1em;
+	margin-left: 2em;
+	display: inline;
 }
 input:focus {
 	background-color: rgba(239, 238, 203, 0.9);

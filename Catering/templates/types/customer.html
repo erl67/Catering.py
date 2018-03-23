@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Customer {{user.username}} - {{ super() }}{% endblock %}
+{% block title %}Customer {{user.username | striptags}} - {{ super() }}{% endblock %}
 
 {% block body %}
 
@@ -8,19 +8,37 @@
 		<a href="{{ url_for('newEvent') }}">Request new event</a>
 	</div>
 	
-	{{ items }}
-	{{ items.length }}
-	
 	{% if items == [] %}
 		<h4>No Pending Events</h4>
 	{% else %}
 		<h3>Pending Events </h3>
 	
 		<ul>
+			<form class="cancel-event" name="cancel">
+			</form>
+		
 		{% for i in items %}
-			<li><a class="event-list" href="/event/{{ i['id'] }}">{{ i['eventname'] }}</a>{{ i['date'] }}</li>
+			<li class="event-list">
+			<a class="event-list" href="/event/{{ i.id }}">
+				{{ i.eventname | striptags}}
+			</a>
+				{{ i.date.strftime('%d %B %Y') }}
+				<button class="cancel-event" formmethod="post" type="submit" name="cancel" value="{{i.id}}"
+				onclick="confirm('Do you want to delete {{i.eventname | striptags}}?');"
+				formaction="{{ url_for('rmeventCust', eid=i.id) }}" value="{{i.id}}">
+					Cancel
+				</button>
+			</li>
 		{% endfor %}
 		</ul>
 	{% endif %}
 	
+{% endblock %}
+
+{% block script %}
+	// template
+	f = document.getElementById('flashbox');
+	b = document.getElementById('page-main');
+	if (f != null) b.prepend(f);
+	// template
 {% endblock %}

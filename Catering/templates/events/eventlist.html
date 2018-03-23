@@ -6,7 +6,7 @@
 	<ul>
 	{% for i in events %}
 		<li class="event-list">
-			<a class="event-list" href="{{url_for('event', eid=i.id)}}">{{ i.eventname }}</a> 
+			<a class="event-list" href="{{url_for('event', eid=i.id)}}">{{ i.eventname | striptags }}</a> 
 			{{ i.date.strftime('%d %B %Y') }} 
 		
 			{% if i.staff1 == None and i.staff2 == None and i.staff3 == None %}

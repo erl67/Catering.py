@@ -1,11 +1,11 @@
-from flask.helpers import get_flashed_messages
-REBUILD_DB = True
-import os
+REBUILD_DB = False
+import os, re
 from sys import stderr
 from flask import Flask, g, send_from_directory, flash, render_template, abort, request, redirect, url_for, session, Response
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy import or_, and_
-from datetime import datetime
+from datetime import datetime, timedelta
+from dateutil import parser
 from models import db, User, Event, populateDB
 
 def create_app():
@@ -61,7 +61,7 @@ def before_request():
         else:
             g.events = Event.query.filter(Event.client == g.user.id).order_by(Event.date.asc()).all()
     eprint("g.user: " + str(g.user))
-#     eprint("g.events: " + str(g.events))
+    #eprint("g.events: " + str(g.events))
     
 @app.before_first_request
 def before_first_request():
@@ -85,9 +85,9 @@ def signer():
     #elif request.method == "GET":
         #flash("Complete form to register")
     elif request.method == "POST":
-        POST_USER = str(request.form['user'])
-        POST_PASS = str(request.form['pass'])
-        POST_EMAIL = str(request.form['mail'])
+        POST_USER = remove_tags(str(request.form['user']))
+        POST_PASS = remove_tags(str(request.form['pass']))
+        POST_EMAIL = remove_tags(str(request.form['mail']))
         if POST_USER != None and POST_PASS != None:
             newUser = User(POST_USER, POST_PASS, POST_EMAIL)
             db.session.add(newUser)
@@ -163,7 +163,7 @@ def logger():
 
 @app.route("/profile/")
 def profiles():
-    return render_template("accounts/profiles.html", users=User.query.order_by(User.id.asc()).all())
+    return Response(render_template("accounts/profiles.html", users=User.query.order_by(User.id.asc()).all()), status=200, mimetype='text/html')
 
 @app.route("/profile/<int:uid>")
 def profile(uid=None):
@@ -192,7 +192,7 @@ def owner():
             days = str((next.date - datetime.now()).days)
             flash("next event: " + str(next.eventname))
             flash("in " + days + " days")
-        return render_template("types/owner.html", user=g.user, events=g.events)
+        return Response(render_template("types/owner.html", user=g.user, events=g.events), status=200, mimetype='text/html')
     else:
         abort(404)
         
@@ -206,8 +206,8 @@ def staff(uid=None):
         events = [g for g in g.events if g.staff1==uid or g.staff2==uid or g.staff3 == uid]
         openEvents = Event.query.filter(or_(Event.staff1==None, Event.staff2==None, Event.staff3==None)).order_by(Event.date.asc()).all()
         openEvents = [o for o in openEvents if o.staff1!=uid and o.staff2!=uid and o.staff3!=uid]
-        eprint(str(openEvents))                            
-        return render_template("types/staff.html", user=g.user, events=events, openevents=openEvents)
+        eprint(str(openEvents)) 
+        return Response(render_template("types/staff.html", user=g.user, events=events, openevents=openEvents), status=200, mimetype='text/html')
     else:
         abort(404)
         
@@ -290,11 +290,33 @@ def rmevent():
         try:
             db.session.commit()
             flash("Deleted event: " + str(event.eventname))
-            return redirect(url_for("owner"))
         except Exception as e:
             db.session.rollback()
             eprint(str(e))
-            flash("Error deleting event")
+            flash("Error deleting event " + event.eventname)
+        return redirect(url_for("owner"))
+    else:
+        abort(404)
+        
+@app.route("/cancelevent/", methods=["POST"])
+def rmeventCust():
+    if request.method == "POST":
+        eventId = int(request.form.get("cancel", None))
+    else:
+        flash("Must use POST to delete event")
+        return redirect(url_for("customers"))
+    if (eventId != None):
+        event = Event.query.filter(Event.id==int(eventId)).first()
+        if event.client == g.user.id:
+            db.session.delete(event)
+            try:
+                db.session.commit()
+                flash("Deleted event: " + str(event.eventname))
+            except Exception as e:
+                db.session.rollback()
+                eprint(str(e))
+                flash("Error deleting event" + event.eventname)
+            return redirect(url_for("customers"))
     else:
         abort(404)
         
@@ -326,10 +348,38 @@ def eventsign(eid=None):
     else:
         abort(404)
         
-@app.route("/newevent/")
+@app.route("/newevent/", methods=["GET", "POST"])
 def newEvent():
-    if g.user:
-        return render_template("events/newEvent.html")
+    if g.user and request.method == "GET":
+        now = datetime.utcnow().date()+timedelta(days=1)
+        return render_template("events/newEvent.html", now=now, later=now+timedelta(days=366))
+    elif g.user==None: 
+        flash("Not logged in")
+        return redirect(url_for("index"))
+    elif request.method == "POST":
+        POST_EVENT = remove_tags(str(request.form['ename']))
+        POST_DATE = parser.parse(request.form['edate'])
+        if Event.DateBooked(POST_DATE):
+            flash("Date already booked")
+            return redirect(url_for("newEvent"))
+        elif POST_EVENT != None and POST_DATE != None:
+            newEvent = Event(eventname=POST_EVENT, email=g.user.email, created=None, client=g.user.id, date=POST_DATE)
+            db.session.add(newEvent)
+            try:
+                db.session.commit()
+                flash("Successfully added event: " + POST_EVENT)
+            except Exception as e:
+                db.session.rollback()
+                eprint(str(e))
+                flash("Error adding event to database")
+                return redirect(url_for("newEvent"))
+            if g.user.id == 1:
+                return redirect(url_for("owner"))
+            else:
+                return redirect(url_for("customers"))
+        else:
+            flash("Error adding event. Field left blank")
+            return redirect(url_for("newEvent"))
     else:
         abort(404)
 
@@ -351,6 +401,10 @@ def index():
 def page_not_found(error):
     return Response(render_template('404.html', errno=error), status=404, mimetype='text/html')
 
+@app.errorhandler(405)
+def wrong_method(error):
+    return Response("You shouldn't have done that", status=405, mimetype='text/html')
+
 @app.route('/404/')
 def error404():
     abort(404)
@@ -364,10 +418,15 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'faviconF.ico', mimetype='image/vnd.microsoft.icon')
 
 def eprint(*args, **kwargs):
+    print("     ", file=stderr),
     print(*args, file=stderr, **kwargs)
+    
+TAG_RE = re.compile(r'<[^>]+>')
+def remove_tags(text):
+    return TAG_RE.sub('', text)
     
 if __name__ == "__main__":
     print('Starting......')
 #     app.run()
 #     app.run(host='0.0.0.0')
-    app.run(use_reloader=True)
+    app.run(use_reloader=True, host='0.0.0.0')
