@@ -2,7 +2,7 @@ REBUILD_DB = False
 import os, re
 from sys import stderr
 from flask import Flask, g, send_from_directory, flash, render_template, abort, request, redirect, url_for, session, Response
-from flask_debugtoolbar import DebugToolbarExtension
+#from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy import or_, and_
 from datetime import datetime, timedelta
 from dateutil import parser
@@ -13,8 +13,8 @@ def create_app():
     DB_NAME = os.path.join(app.root_path, 'catering.db')
     
     app.config.update(dict(
-        DEBUG=True,
-        DEBUG_TB_INTERCEPT_REDIRECTS=True,
+        #DEBUG=True,
+        #DEBUG_TB_INTERCEPT_REDIRECTS=True,
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         SECRET_KEY='erl67',
         TEMPLATES_AUTO_RELOAD=True,
@@ -307,29 +307,38 @@ def eventsign(eid=None):
     if g.user.staff != True:
         flash("Access to events denied.")
         return redirect(url_for("index"))
-    if g.user.staff != True:
-        flash("Access to events denied.")
-        return redirect(url_for("index"))
-    elif g.user.staff == True:
-        id = int(g.user.id)
+    if eid == None:
+        flash("Event ID not provided")
+        return redirect(url_for("staff", uid=g.user.id))
+    if g.user.staff == True:
+        id = g.user.id
         eventRS = Event.query.filter(Event.id == int(eid)).first()
-        eprint("\n" + str(eventRS) + "\n")
         if eventRS == None:
-            flash("Event ID not found")
-            return redirect(url_for("staff"), uid=id)
+            flash("Event not found")
+            return redirect(url_for("staff", uid=g.user.id))
         elif eventRS.staff1==id or eventRS.staff2==id or eventRS.staff3==id:
             flash("Already registered for this event")
-            return redirect(url_for("staff"), uid=id)
+            return redirect(url_for("staff", uid=g.user.id))
         else:
+            if eventRS.staff1==None:
+                eventRS.staff1 = g.user.id
+            elif eventRS.staff2==None:
+                eventRS.staff1 = g.user.id
+            elif eventRS.staff3==None:
+                eventRS.staff1 = g.user.id
+            else:
+                flash("Event is already fully staffed")
 #             db.session.add()
             try:
-#                 db.session.commit()
+                db.session.commit()
                 flash("Registered for " + str(eventRS.eventname))
+                return redirect(url_for("staff", uid=g.user.id))
             except Exception as e:
                 db.session.rollback()
                 eprint(str(e))
-                flash("Error signing up for event")   
-            return redirect(url_for("staff"), uid=id)
+                flash("Error registering for " + str(eventRS.eventname))
+                return redirect(url_for("eventsign", eid=eid))
+            return redirect(url_for("index"))
     else:
         abort(404)
         
@@ -412,6 +421,5 @@ def remove_tags(text):
     
 if __name__ == "__main__":
     print('Starting......')
-#     app.run()
-#     app.run(host='0.0.0.0')
-    app.run(use_reloader=True, host='0.0.0.0')
+    app.run()
+    #app.run(use_reloader=True, host='0.0.0.0')

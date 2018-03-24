@@ -63,11 +63,15 @@ li {
 .event-empty {
 	border: 2px dashed red;
 	padding: .1em;
+	font-variant: small-caps;
+	cursor: help;
 /* 	margin-left: 3em; */
 }
 .event-staff {
 	padding: .1em;
 	font-size: .5em;
+	min-width: 80px;
+	min-height: 25px;
 }
 .user-owner {
 	
