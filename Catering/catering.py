@@ -1,8 +1,9 @@
 REBUILD_DB = False
+FDEBUG = True
 import os, re
 from sys import stderr
 from flask import Flask, g, send_from_directory, flash, render_template, abort, request, redirect, url_for, session, Response
-#from flask_debugtoolbar import DebugToolbarExtension
+from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy import or_, and_
 from datetime import datetime, timedelta
 from dateutil import parser
@@ -13,8 +14,6 @@ def create_app():
     DB_NAME = os.path.join(app.root_path, 'catering.db')
     
     app.config.update(dict(
-        #DEBUG=True,
-        #DEBUG_TB_INTERCEPT_REDIRECTS=True,
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         SECRET_KEY='erl67',
         TEMPLATES_AUTO_RELOAD=True,
@@ -35,9 +34,6 @@ def create_app():
         db.create_all()
         print('DB Created')
         populateDB()
-        
-    app.jinja_env.auto_reload = True
-    toolbar = DebugToolbarExtension(app)    
     print(app.__str__(), end="  ")
     return app
 
@@ -121,12 +117,11 @@ def signerStaff():
                 db.session.commit()
                 if User.query.filter(User.username == POST_USER, User.password == POST_PASS):
                     flash("Added account " + POST_USER + ":" + POST_PASS)
-                    eprint(get_flashed_messages())
-                    return Response(render_template("accounts/newAccount.html"), status=200, mimetype='text/html')
+                return Response(render_template("accounts/newAccount.html"), status=200, mimetype='text/html')
             except Exception as e:
                 db.session.rollback()
                 eprint(str(e))
-                flash("Error adding user to database")
+                flash("Error adding user to database. Name Taken.")
         else:
             flash("Error registering new account")
     return Response(render_template("accounts/newAccount.html"), status=200, mimetype='text/html')
@@ -409,7 +404,10 @@ def err418(error=None):
 
 @app.route('/favicon.ico') 
 def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'), 'faviconF.ico', mimetype='image/vnd.microsoft.icon')
+    if bool(random.getrandbits(1)):
+        return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+    else:
+        return send_from_directory(os.path.join(app.root_path, 'static'), 'faviconF.ico', mimetype='image/vnd.microsoft.icon')
 
 def eprint(*args, **kwargs):
     print("     ", file=stderr),
@@ -421,5 +419,15 @@ def remove_tags(text):
     
 if __name__ == "__main__":
     print('Starting......')
-    app.run()
-    #app.run(use_reloader=True, host='0.0.0.0')
+    if FDEBUG==True:
+        app.config.update(dict(
+            DEBUG=True,
+            DEBUG_TB_INTERCEPT_REDIRECTS=False,
+            SQLALCHEMY_TRACK_MODIFICATIONS=True,
+            TEMPLATES_AUTO_RELOAD=True,
+        ))
+        app.jinja_env.auto_reload = True
+        toolbar = DebugToolbarExtension(app) 
+        app.run(use_reloader=True, host='0.0.0.0')
+    else:
+        app.run()
