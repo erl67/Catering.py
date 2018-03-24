@@ -81,7 +81,7 @@ def utility_processor():
 def signer():
     if g.user:
         flash("Already logged in!")
-        return redirect(url_for("profile", uid=g.user.id))
+        return redirect(url_for("index"))
     #elif request.method == "GET":
         #flash("Complete form to register")
     elif request.method == "POST":
@@ -97,7 +97,7 @@ def signer():
                     flash("Successfully registered! " + POST_USER + ":" + POST_PASS)
                     session["username"] = POST_USER
                     session["uid"] = User.query.filter(User.username == POST_USER).first().id
-                    return redirect(url_for("profile", uid=session["uid"]))
+                    return redirect(url_for("index"))
             except Exception as e:
                 db.session.rollback()
                 eprint(str(e))
@@ -135,7 +135,7 @@ def signerStaff():
 def logger():
     if "username" in session:
         flash("Already logged in!")
-        return redirect(url_for("profile", uid=session["uid"]))
+        return redirect(url_for("index"))
     elif request.method == "POST":
         POST_USER = str(request.form['user'])
         POST_PASS = str(request.form['pass'])
@@ -156,29 +156,10 @@ def logger():
                 return redirect(url_for("staff", uid=session["uid"]))
             else:
                 return redirect(url_for("customer", uid=session["uid"]))
-            return redirect(url_for("profile", uid=session["uid"]))
+            return redirect(url_for("index", uid=session["uid"]))
         else:
             flash("Error logging you in!")
     return Response(render_template("accounts/loginPage.html"), status=200, mimetype='text/html')
-
-@app.route("/profile/")
-def profiles():
-    return Response(render_template("accounts/profiles.html", users=User.query.order_by(User.id.asc()).all()), status=200, mimetype='text/html')
-
-@app.route("/profile/<int:uid>")
-def profile(uid=None):
-    if not uid:
-        return redirect(url_for("profiles"))
-    elif g.user:
-        if g.user.id == uid:
-            return render_template("accounts/curProfile.html", name=g.user)
-        elif User.query.filter(User.id == uid).first() != None:
-            return render_template("accounts/otherProfile.html", name=User.query.filter(User.id == uid).first().username)
-        else:
-            abort(404)
-    else:
-        return Response(render_template("accounts/loginPage.html"), status=200, mimetype='text/html')
-        abort(404)
 
 @app.route("/owner/")
 def owner():
@@ -235,7 +216,7 @@ def customer(uid=None):
         flash("Viewing customer page as staff")
         return redirect(url_for("customers"))
     else:
-        return Response("something is broke here", status=200, mimetype='text/html')
+        abort(404)
         
 @app.route("/logout/")
 def unlogger():
@@ -261,6 +242,7 @@ def events():
 @app.route("/events/<int:eid>")
 def event(eid=None):
     if g.user.staff != True:
+        
         flash("Access to events denied.")
         return redirect(url_for("index"))
     elif g.user.staff == True:
@@ -322,6 +304,9 @@ def rmeventCust():
         
 @app.route("/eventsignup/<int:eid>", methods=["GET", "POST"])
 def eventsign(eid=None):
+    if g.user.staff != True:
+        flash("Access to events denied.")
+        return redirect(url_for("index"))
     if g.user.staff != True:
         flash("Access to events denied.")
         return redirect(url_for("index"))

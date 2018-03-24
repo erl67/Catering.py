@@ -1,15 +1,13 @@
 html, body {
 	margin: 0 auto;
 	padding: 1em;
-	width: 75%;
+	width: 90%;
 	margin: 0 auto;
 	box-sizing: border-box;
 	display: flex; 
 	flex-direction: column;
 	justify-content: space-evenly;
 	align-items: center;
-/*     font-family: papyrus; */
-    font-family: Comic Sans;
     font-weight: bold;
 }
 #page {
@@ -35,22 +33,41 @@ a:hover {
 	background: #ddd;
 	text-decoration: none;
 }
-a.event-list {
+.event-list {
+	border: 1px dashed #c0c0c0;
+	width: 100%;
+}
+.event-list-link {
 	margin-right: 2em;
 	text-decoration: none;
 }
-li.event-list {
-	margin: .5em;
+.event-list-item {
+	padding: .5em;
 	list-style-type: square;
+/* 	width: 100%; */
+}
+ul {
+	display: flex; 
+	flex-direction: column;
+	justify-content: space-evenly;
+}
+li {
+	display: flex; 
+	flex-direction: row;
+	justify-content: space-between;
+/* 	list-style-type: none; */
 }
 .event-full {
 	
 }
 .event-empty {
-/* 	box-shadow: 0px 0px 10px 50px #b06259 ; */
 	border: 2px dashed red;
 	padding: .1em;
-	margin-left: 3em;
+/* 	margin-left: 3em; */
+}
+.event-staff {
+	padding: .1em;
+	font-size: .5em;
 }
 .user-owner {
 	

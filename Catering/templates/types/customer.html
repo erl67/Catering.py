@@ -13,23 +13,23 @@
 	{% else %}
 		<h3>Pending Events </h3>
 	
-		<ul>
-			<form class="cancel-event" name="cancel">
-			</form>
+		<ul class="event-list">
+			<form name="cancel">
 		
 		{% for i in items %}
-			<li class="event-list">
-			<a class="event-list" href="/event/{{ i.id }}">
+			<li class="event-list-item">
+			<a class="event-list-link" href="{{url_for('event', eid=i.id)}}">
 				{{ i.eventname | striptags}}
 			</a>
 				{{ i.date.strftime('%d %B %Y') }}
 				<button class="cancel-event" formmethod="post" type="submit" name="cancel" value="{{i.id}}"
-				onclick="confirm('Do you want to delete {{i.eventname | striptags}}?');"
+				onclick="return confirm('Do you want to delete {{i.eventname | striptags}}?');"
 				formaction="{{ url_for('rmeventCust', eid=i.id) }}" value="{{i.id}}">
 					Cancel
 				</button>
 			</li>
 		{% endfor %}
+			</form>
 		</ul>
 	{% endif %}
 	

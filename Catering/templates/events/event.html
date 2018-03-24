@@ -12,16 +12,13 @@
 		<h3>Event Date: {{event.date.strftime('%d %B, %y')}}</h3>
 		<br/>
 		
-		Client: {{ getName(event.client) }}
+		<h3>Client: {{ getName(event.client) }}<h3>
 			
 		{% if event.staff1 == None and event.staff2 == None and event.staff3 == None %}
-			<h6>No staff scheduled</h6>
+			<h3>No staff scheduled</h3>
+		{% else %}
+			<h4>Currently scheduled employees:</h4>
 		{% endif %}
-			
-		{% if event.staff1 == None or event.staff2 == None and event.staff3 == None %}
-			<h6><a href="{{url_for('eventsign', eid=event.id)}}">Signup for this event</a></h6>
-		{% endif %}
-		
 		
 		<ul>
 			<li>
@@ -40,6 +37,10 @@
 			{% endif %}
 			</li>
 		</ul>			
+		
+		{% if event.staff1 == None or event.staff2 == None and event.staff3 == None %}
+			<h6><a href="{{url_for('eventsign', eid=event.id)}}">Signup for this event</a></h6>
+		{% endif %}
 		
 	{% endif %}
 

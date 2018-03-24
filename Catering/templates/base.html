@@ -29,7 +29,7 @@
   {% if g.user %}
   	logged in as: {{ g.user.username }}
   	<br/><br/>
-    <a href="{{ url_for('profile', uid=g.user.id) }}">profile</a>
+{#    <a href="{{ url_for('profile', uid=g.user.id) }}">profile</a>#}
     {% if g.user.staff==False %}
     	<a href="{{ url_for('customer', uid=g.user.id) }}">customer page</a>
     {% elif g.user.id==1 %}
