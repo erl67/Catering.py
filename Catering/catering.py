@@ -1,5 +1,6 @@
 REBUILD_DB = False
-FDEBUG = True
+FDEBUG = False
+
 import os, re
 from sys import stderr
 from flask import Flask, g, send_from_directory, flash, render_template, abort, request, redirect, url_for, session, Response
@@ -7,6 +8,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy import or_, and_
 from datetime import datetime, timedelta
 from dateutil import parser
+from random import getrandbits
 from models import db, User, Event, populateDB
 
 def create_app():
@@ -45,6 +47,12 @@ def initdb_command():
     db.create_all()
     populateDB()
     print('Initialized the database.')
+    
+@app.cli.command('debug')
+def initdb_command():
+    REBUILD_DB = True
+    FDEBUG = True
+    app.run()
     
 @app.before_request
 def before_request():
@@ -174,7 +182,11 @@ def owner():
         
 @app.route("/staff/<int:uid>")
 def staff(uid=None):
+    if not g.user:
+        flash("Must login first")
+        return redirect(url_for("index"))
     if not uid:
+        flash("Not authorized")
         return redirect(url_for("index"))
     elif g.user.staff == True and g.user.id == int(uid):
         uid = int(uid)
@@ -299,6 +311,9 @@ def rmeventCust():
         
 @app.route("/eventsignup/<int:eid>", methods=["GET", "POST"])
 def eventsign(eid=None):
+    if not g.user:
+        flash("Must login first")
+        return redirect(url_for("index"))
     if g.user.staff != True:
         flash("Access to events denied.")
         return redirect(url_for("index"))
@@ -323,7 +338,6 @@ def eventsign(eid=None):
                 eventRS.staff1 = g.user.id
             else:
                 flash("Event is already fully staffed")
-#             db.session.add()
             try:
                 db.session.commit()
                 flash("Registered for " + str(eventRS.eventname))
@@ -404,13 +418,12 @@ def err418(error=None):
 
 @app.route('/favicon.ico') 
 def favicon():
-    if bool(random.getrandbits(1)):
+    if bool(getrandbits(1))==True:
         return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
     else:
         return send_from_directory(os.path.join(app.root_path, 'static'), 'faviconF.ico', mimetype='image/vnd.microsoft.icon')
 
 def eprint(*args, **kwargs):
-    print("     ", file=stderr),
     print(*args, file=stderr, **kwargs)
     
 TAG_RE = re.compile(r'<[^>]+>')

@@ -27,15 +27,5 @@ Set FDEBUG on line 2 to true if you want to use the debug toolbar
 
 
 
-Initialize Database Manually: 
-
-
-goto project directory >>> cd C:\Users\E\git\201801-so-you-think-you-can-cater-erl67\Catering
-
-set FLASK_APP=catering.py
-
-flask initdb {drop, create, populate}
-
-
 visit /db/ to view all objects in the database for testing purposes, also available from owners page
 colors are generated based on a hash of the innerHTML, so each page will be different
