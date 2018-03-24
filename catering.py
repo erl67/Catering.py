@@ -99,7 +99,6 @@ def signer():
                 db.session.commit()
                 if User.query.filter(User.username == POST_USER, User.password == POST_PASS):
                     flash("Successfully registered! " + POST_USER + ":" + POST_PASS)
-                    session["username"] = POST_USER
                     session["uid"] = User.query.filter(User.username == POST_USER).first().id
                     return redirect(url_for("index"))
             except Exception as e:
@@ -145,21 +144,17 @@ def logger():
         valid = User.query.filter(User.username == POST_USER, User.password == POST_PASS).first()
         eprint(str(valid))
         if (POST_USER == "owner") and (POST_PASS == "pass"):
-            session["username"] = "owner"
             session["uid"] = 1
-            session["staff"] = "owner"
             flash("Successfully logged in as Mr. Manager")
             return redirect(url_for("owner"))
         elif valid is not None:
-            session["username"] = POST_USER
             session["uid"] = valid.id
-            flash("Successfully logged in!  " + session["username"])
+            flash("Successfully logged in!  " + valid.username)
             if valid.staff == True:
-                session["staff"] = True
-                return redirect(url_for("staff", uid=session["uid"]))
+                return redirect(url_for("staff", uid=valid.id))
             else:
-                return redirect(url_for("customer", uid=session["uid"]))
-            return redirect(url_for("index", uid=session["uid"]))
+                return redirect(url_for("customer", uid=valid.id))
+            return redirect(url_for("index", uid=valid.id))
         else:
             flash("Error logging you in!")
     return Response(render_template("accounts/loginPage.html"), status=200, mimetype='text/html')
@@ -190,7 +185,6 @@ def staff(uid=None):
         return redirect(url_for("index"))
     elif g.user.staff == True and g.user.id == int(uid):
         uid = int(uid)
-        #events = Event.query.filter(or_(Event.staff1==uid, Event.staff2==uid, Event.staff3==uid)).order_by(Event.date.asc()).all()
         events = [g for g in g.events if g.staff1==uid or g.staff2==uid or g.staff3 == uid]
         openEvents = Event.query.filter(or_(Event.staff1==None, Event.staff2==None, Event.staff3==None)).order_by(Event.date.asc()).all()
         openEvents = [o for o in openEvents if o.staff1!=uid and o.staff2!=uid and o.staff3!=uid]
@@ -210,8 +204,6 @@ def customers(uid=None):
 
 @app.route("/customer/<uid>")
 def customer(uid=None):
-    eprint("customer: " + uid + " " + str(g.user.staff))
-    eprint("g.user.id == uid" + str(g.user.id) + "==" + uid + " returns:" + str(g.user.id == uid))
     if not uid:
         return redirect(url_for("customers"))
     elif (g.user.staff == False) and (int(g.user.id) == int(uid)):
@@ -227,11 +219,12 @@ def customer(uid=None):
         
 @app.route("/logout/")
 def unlogger():
-    if "username" in session:
+    if "uid" in session:
         session.clear()
         flash("Successfully logged out!")
         return redirect(url_for("index"))
     else:
+        session.clear()
         flash("Not currently logged in!")
         return redirect(url_for("logger"))
 
@@ -248,8 +241,7 @@ def events():
         
 @app.route("/events/<int:eid>")
 def event(eid=None):
-    if g.user.staff != True:
-        
+    if g.user.staff != True:        
         flash("Access to events denied.")
         return redirect(url_for("index"))
     elif g.user.staff == True:
@@ -396,7 +388,6 @@ def rawstats():
 
 @app.route('/')
 def index():
-    eprint('index')
     return Response(render_template('base.html'), status=203, mimetype='text/html')
 
 @app.errorhandler(403)
@@ -407,10 +398,6 @@ def page_not_found(error):
 @app.errorhandler(405)
 def wrong_method(error):
     return Response("You shouldn't have done that", status=405, mimetype='text/html')
-
-@app.route('/404/')
-def error404():
-    abort(404)
 
 @app.route('/418/')
 def err418(error=None):
