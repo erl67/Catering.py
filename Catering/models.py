@@ -1,4 +1,3 @@
-# from __main__ import *     
 from flask_sqlalchemy import SQLAlchemy 
 from datetime import datetime, timedelta
 from random import randrange
