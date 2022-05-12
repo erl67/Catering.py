@@ -1,9 +1,3 @@
-# So You Think You Can Cater
-
-Name: Eric Laslo
-
-Pitt ID: ERL67@pitt.edu
-
 
 ## Installation
 
